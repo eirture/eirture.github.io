@@ -8,5 +8,4 @@ public/
 .deploy*/
 themes/
 
-package.json
 package-lock.json
