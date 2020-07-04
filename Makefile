@@ -5,9 +5,9 @@ prepare:
 	- cp config/jacman_config.yml themes/jacman/_config.yml
 
 generate:
-	hexo g
+	./node_modules/hexo/bin/hexo g
 
 clean:
-	hexo clean
+	./node_modules/hexo/bin/hexo clean
 
 deploy: prepare generate
