@@ -9,3 +9,5 @@ generate:
 
 clean:
 	hexo clean
+
+deploy: prepare generate
