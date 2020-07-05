@@ -60,10 +60,10 @@ Root: HKCR; Subkey: "myapp\shell\open\command"; Flags: uninsdeletekey; ValueType
 mvn clean jfx:native
 ```
 在项目的 `target\jfx\native\` 目录下将会生成我们的应用程序 `MyApp.exe`，安装后会自动在注册表中写入自定义的 scheme 信息。如下图所示：
-![windows 注册表信息](http://upload-images.jianshu.io/upload_images/638418-3704666ac32b3964.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![windows 注册表信息](https://tva1.sinaimg.cn/large/007S8ZIlly1ggg57spb1hj30qa0fajsg.jpg)
 
 现在就可以在浏览器输入 `myapp://` 启动 `MyApp.exe` 应用程序了。
-![web 唤起 MyApp.exe](http://upload-images.jianshu.io/upload_images/638418-546a30bfc8bbd4a0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![web 唤起 MyApp.exe](https://tva1.sinaimg.cn/large/007S8ZIlly1ggg58ccc62j30tk07t0sx.jpg)
 
 ## 通过 URL 唤起 JavaFX Mac OS 应用
 MacOS 应用程序如何自定义 URL Scheme 的教程很多，在此我们也不过多介绍。需要在应用的 `Info.plist` 文件中添加如下配置：
@@ -168,7 +168,7 @@ Running [security, find-certificate, -c, Developer ID Application: , -a]
 
 ```
 重新打包安装，即可在浏览器通过 `myapp://` 唤起我们应用程序了。
-![Web 唤起 MyApp.app](http://upload-images.jianshu.io/upload_images/638418-396601507ec3e983.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![Web 唤起 MyApp.app](https://tva1.sinaimg.cn/large/007S8ZIlly1ggg590hvirj30yg0es0tr.jpg)
 
 ## 总结
 终于我们实现了从 web 页面唤起 JavaFX 本地应用程序功能。各个平台上实现自定义的 URL Scheme 的教程都很多，在此主要是想分享使用 JavaFX 开发，如何配置此功能。当然，这里仅仅是通过自定义的 URL Scheme 唤起本地应用程序。我们还可以使用自定义的 URLSchemeHandler 接收来自 URL Scheme 的参数，例如通过 `myapp://user/eirture` 给本地应用传递 `user/eirture` 信息等。

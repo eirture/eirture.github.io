@@ -12,7 +12,7 @@ tags: [translation, android, imageview]
 
 
 在[上篇文章](https://eirture.github.io/2016/12/08/uCorp/)中，向你介绍了我们最新的 [Android 图片裁剪库](https://github.com/Yalantis/uCrop)，它的裁剪体验比现有的任何一个方案都要好。也许你已经见过这个库：发布后不久，uCrop 在 GitHub 上获得了很多关注。并在 GitHub 的 trending repositories 列表中取得领先的地位。
-![](http://images.yalantis.com/uploads/ckeditor/pictures/1920/content_content_Screenshot_2016-01-24_19.09.51.png)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6lehmzfj30m80dtmxw.jpg)
 
 如果你喜欢，可以[在 Product Hunt 上为 uCrop 投票](https://www.producthunt.com/tech/ucrop)。现在让我们开始深入研究开发 uCrop 的一些技术细节。读完这篇文章后，希望 Android 上的图片裁剪在你眼里能变得更容易些。
 <!-- more -->
@@ -124,7 +124,7 @@ public void postScale(float deltaScale, float px, float py) {
 
 我在 *TransformImageView* 上面添加的第一部分是裁剪参考线。当你想相对图片的中心和 X/Y 轴来调整位置时，这是相当有用的。
 
-![](http://images.yalantis.com/w320/uploads/ckeditor/pictures/64/content_1_jpg.jpg)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6nqtanuj30ci0m8q4m.jpg)
 
 图片参考线是由一个矩形构成，矩形内部有水平和垂直的线。在画布上绘制线条很容易，如果你在这方面有问题，可以在网上找到很多相关的信息。你也可以看我们的开源项目是如何实现的。
 
@@ -145,11 +145,11 @@ public void postScale(float deltaScale, float px, float py) {
 
 开始，有两个矩形：图片框和裁剪框。图片必需适应裁剪框以至裁剪框完全在图片框内部。至少，它们的边必需接触。如果两个矩形是坐标轴方向的，那这个任务相当简单：仅需调用 Rect 类的 contains() 方法就可以了。但在这里，图片的矩形是能够自由转动的。真糟糕！
 
-![左边：图片框没有填满裁剪框。右边：图片框填满了裁剪框](http://images.yalantis.com/w736/uploads/ckeditor/pictures/66/content_scheme1.jpg)
+![左边：图片框没有填满裁剪框。右边：图片框填满了裁剪框](https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6nudjshj30m80anwep.jpg)
 
 首先，如何检测一个斜的矩形是否包含了一个坐标轴方向的矩形，让我很困惑。然后我尽力回忆曾学的很好的三角函数课程，并不断在纸上做计算。但我突然意识到，如果反过来思考这个问题将变得很容易解决：如何检测坐标轴方向矩形是否覆盖这个倾斜矩形？
 
-![与坐标轴方向图片矩形一样](http://images.yalantis.com/w736/uploads/ckeditor/pictures/67/content_scheme2.jpg)
+![与坐标轴方向图片矩形一样](https://yalantis.com/uploads/ckeditor/pictures/67/content_scheme2.jpg)
 
 它现在看起来没那么难了！只需要知道裁剪框的四个角是不是都在图片框中。
 
@@ -449,7 +449,7 @@ public boolean onTouchEvent(MotionEvent event) {
 
 最后，拿到了这组漂亮的设计图来实现：
 
-![](http://images.yalantis.com/w736/uploads/ckeditor/pictures/71/content_crop_ratio_scale_jpg.jpg)
+![](https://yalantis.com/uploads/ckeditor/pictures/71/content_crop_ratio_scale_jpg.jpg)
 
 还有一些事，必须重头开始做：
 * 用于水平滚动的自定义控件

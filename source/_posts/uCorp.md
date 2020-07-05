@@ -18,7 +18,7 @@ tags: [translation, android]
 ### 为什么其它的开源库不好用
 1. [SoundCloud 裁剪库](https://github.com/jdamcd/android-crop)
 
-  ![](http://images.yalantis.com/uploads/ckeditor/pictures/1985/content_content_screenshot.png)
+  ![](https://yalantis.com/uploads/ckeditor/pictures/4639/screenshot.png)
 
   我在几个项目里面使用了 SoundCloud 库很成功，但是仍然有几个问题让我很头痛。
 
@@ -30,7 +30,7 @@ tags: [translation, android]
 
 2. [Edmodo Cropper](https://github.com/edmodo/cropper)
 
-  ![](http://images.yalantis.com/w427/uploads/ckeditor/pictures/4/content_687474703a2f2f692e696d6775722e636f6d2f334668735467666c2e6a7067.jpeg)
+  ![](https://yalantis.com/uploads/ckeditor/pictures/4/content_687474703a2f2f692e696d6775722e636f6d2f334668735467666c2e6a7067.jpeg)
 
     Edmodo Cropper 与 SoundCloud 库非常相似，缺点也同样相似。不过，这个库支持动态的改变裁剪框的长宽比。它也有参考线和一种旋转图片的方式（仅仅只有一种方式，所以你需要想办法解决手势检测或是一些控件来控制自己的手势）。
 
