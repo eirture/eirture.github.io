@@ -13,6 +13,7 @@ tags: [translation, android]
 我们想为所有的用户提供最好的图片处理工具，所以决定创建Android的图片裁剪库 [uCrop](https://github.com/Yalantis/uCrop) 。 可以在 [Product Hunt](https://www.producthunt.com/tech/ucrop) 上为 uCorp 投票。
 
 也许你会好奇，为什么我们不使用现成的 Android 图片裁剪解决方案。 毕竟，可以在 Github 或者 [Android Arsenal](http://android-arsenal.com/) 上找到很多这类的库。但是问题是，那些解决方案都不满足我们的需求。我们来看一些主流的开源图片裁剪库，为什么不符合我们的需求。
+<!-- more -->
 
 ### 为什么其它的开源库不好用
 1. [SoundCloud 裁剪库](https://github.com/jdamcd/android-crop)

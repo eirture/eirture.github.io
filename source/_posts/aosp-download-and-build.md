@@ -29,6 +29,7 @@ tags: android
   $ curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo     
   $ chmod a+x ~/bin/repo
   ```
+<!-- more -->
 
 ## 下载AOSP源码
 1. 创建工作目录（名字合法即可）

@@ -15,6 +15,7 @@ tags: [translation, android, imageview]
 ![](http://images.yalantis.com/uploads/ckeditor/pictures/1920/content_content_Screenshot_2016-01-24_19.09.51.png)
 
 如果你喜欢，可以[在 Product Hunt 上为 uCrop 投票](https://www.producthunt.com/tech/ucrop)。现在让我们开始深入研究开发 uCrop 的一些技术细节。读完这篇文章后，希望 Android 上的图片裁剪在你眼里能变得更容易些。
+<!-- more -->
 
 ### uCrop 的挑战
 

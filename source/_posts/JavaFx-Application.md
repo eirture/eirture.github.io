@@ -8,6 +8,7 @@ tags: [translation, JavaFX]
 
 ----
 在这章中，我们将详细讨论 JavaFX 应用的结构，当然也会学习如何创建一个 JavaFX 应用程序。
+<!-- more -->
 
 ## JavaFX 应用结构
 通常，一个 JavaFX 应用包含三个主要的控件：Stage、Scene 和 Nodes。如下图所示：
