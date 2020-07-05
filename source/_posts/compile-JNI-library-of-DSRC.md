@@ -1,5 +1,5 @@
 ---
-title: 编译DSRC的JNI链接库
+title: 编译各平台的 JNI 链接库
 date: 2017-09-26 22:30:31
 tags: 
 ---
@@ -30,7 +30,7 @@ public class DSRCImpl {
 }
 ```
 编译出头文件：
-![](/images/屏幕快照 2017-09-26 下午2.10.25.png)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggftkaodiuj30kn029aam.jpg)
 
 生成的 `com_genedock_sdk_internal_compress_DSRCImpl.h` 文件如下：
 ```cpp
@@ -197,21 +197,21 @@ g++ -O2 -m64 -DNDEBUG -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -Wall -std=c+
 windows 需要编译 x86 和 x64 两个版本链接库。DSRC 默认不支持编译 32 位的类库。
 
 DSRC 项目使用 Visual Studio 编译，所以在此我们也使用 Visual Studio 编译。安装好 Visual Studio 后双击打开 DSRC 根目录下 `dsrc20-vs2k12.sln` 文件即可导入项目。
-![](/images/屏幕快照 2017-09-26 下午4.07.10-2.png)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggftktruwgj31c00u0ngd.jpg)
 在解决方案上右键，点击`生成`即可编译。在 `1` 处选择 `Release Lib` 即可编译生成 `.lib` 静态类库。
 #### X64 编译
 在解决方案上右键 -> 添加 -> 新建项目。选择 windows 桌面 -> windows 桌面向导，输入名称后确定。应用类型选择 `动态链接库`，取消预编译头。删除生成的头文件和源文件。将我们的头文件和 cpp 文件添加进来，如下：
-![](/images/屏幕快照 2017-09-26 下午4.18.09.png?r=40)           ![](/images/屏幕快照 2017-09-26 下午4.22.44.png?r=38)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggftl8hkq5j30rq0kuach.jpg?r=40)           ![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggfu4uayj5j30pk0k60vv.jpg?r=38)
 添加引用，选择 `dsrc20-vs2k12`，设置 dsrcjava 属性。修改 VC++ 目录 下 `包含目录` 和 `引用目录`，分别添加 jdk 安装目录下的 include/、include/win32/ 和 lib/ 目录，如下：
-![](/images/屏幕快照 2017-09-26 下午4.25.46.png?r=50)  ![](/images/屏幕快照 2017-09-26 下午4.26.26.png?r=49)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggfu570hlij319z0u0k32.jpg?r=50)  ![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggfu5lcwrvj31cv0u0k33.jpg?r=49)
 在 `C/C++` 中添加 `附加包含目录`，指定 DSRC 中 include/dsrc 目录。在`代码生成`中，修改`运行库`为`多线程(/MT)`
-![](/images/屏幕快照 2017-09-26 下午4.34.41.png?r=60)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggfu5x0j4ej31by0u04aa.jpg?r=60)
 此时再去编译即可。
-![](/images/屏幕快照 2017-09-26 下午4.39.05.png?r=100)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggfu63y6jmj31c00u0qhr.jpg?r=100)
 
 #### X86 编译
 首先需要为 DSRC 添加  win32 解决方案。进入配置管理器，在 dsrc20-vs2k12 平台中新建如下：
-![](/images/屏幕快照 2017-09-26 下午4.44.19.png?r=48)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggfu6b8210j312w0riq7i.jpg?r=48)
 打开 `src/QualityModelerProxy.h` 文件，将 168-176 行修改如下：
 ```cpp
 		case 1:	return new TQualityLossyOrderPositionalModeler<7, 1>();
@@ -226,7 +226,7 @@ DSRC 项目使用 Visual Studio 编译，所以在此我们也使用 Visual Stud
 ```
 如 64 位同样，添加 JDK 的 include 和 include/win32 及 DSRC/include/dsrc 包含目录。将 `C/C++` -> `代码生成`中，修改`运行库`为`多线程调试(/MTd)`
 此时编译即可生成 32 位平台链接库。
-![](/images/屏幕快照 2017-09-26 下午5.18.27.png)
+![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggfu6hr4f2j31c00u0trq.jpg)
 
 ## 参考
 1. [极客学院 wiki](http://wiki.jikexueyuan.com/project/jni-ndk-developer-guide/workflow.html)
