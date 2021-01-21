@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.eirture.cn","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="原文链接：https:&#x2F;&#x2F;yalantis.com&#x2F;blog&#x2F;how-we-created-ucrop-our-own-image-cropping-library-for-android&#x2F; 译者：Eirture  译者：建议感兴趣的朋友阅读原文，博主水平非常有限，许多地方不能准确表达原博主的思想，望多多指教。  在上篇文章中，向你介绍了我们最新的 Android 图片裁剪库，它的裁剪体验比现有的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="（译）uCrop 的创建过程">
+<meta property="og:url" content="https://blog.eirture.cn/2016/12/13/How-We-Create-uCrop/index.html">
+<meta property="og:site_name" content="月光">
+<meta property="og:description" content="原文链接：https:&#x2F;&#x2F;yalantis.com&#x2F;blog&#x2F;how-we-created-ucrop-our-own-image-cropping-library-for-android&#x2F; 译者：Eirture  译者：建议感兴趣的朋友阅读原文，博主水平非常有限，许多地方不能准确表达原博主的思想，望多多指教。  在上篇文章中，向你介绍了我们最新的 Android 图片裁剪库，它的裁剪体验比现有的">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6lehmzfj30m80dtmxw.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6nqtanuj30ci0m8q4m.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6nudjshj30m80anwep.jpg">
+<meta property="og:image" content="https://yalantis.com/uploads/ckeditor/pictures/67/content_scheme2.jpg">
+<meta property="og:image" content="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/79/content_2_1.gif">
+<meta property="og:image" content="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/80/content_3_1.gif">
+<meta property="og:image" content="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/77/content_4_1.gif">
+<meta property="og:image" content="https://yalantis.com/uploads/ckeditor/pictures/71/content_crop_ratio_scale_jpg.jpg">
+<meta property="og:image" content="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/76/content_5_1.gif">
+<meta property="article:published_time" content="2016-12-13T19:21:41.000Z">
+<meta property="article:modified_time" content="2021-01-21T06:53:54.995Z">
+<meta property="article:author" content="Jie Liu">
+<meta property="article:tag" content="translation">
+<meta property="article:tag" content="android">
+<meta property="article:tag" content="imageview">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6lehmzfj30m80dtmxw.jpg">
+
+<link rel="canonical" href="https://blog.eirture.cn/2016/12/13/How-We-Create-uCrop/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh'
+  };
+</script>
+
+  <title>（译）uCrop 的创建过程 | 月光</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">月光</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Jie's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
+    <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2016/12/13/How-We-Create-uCrop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jie Liu">
+      <meta itemprop="description" content="记录点滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="月光">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          （译）uCrop 的创建过程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-12-13 19:21:41" itemprop="dateCreated datePublished" datetime="2016-12-13T19:21:41+00:00">2016-12-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-01-21 06:53:54" itemprop="dateModified" datetime="2021-01-21T06:53:54+00:00">2021-01-21</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2016/12/13/How-We-Create-uCrop/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2016/12/13/How-We-Create-uCrop/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>原文链接：<a href="https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/" target="_blank" rel="noopener">https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/</a></p>
+<p>译者：<a href="https://eirture.github.io" target="_blank" rel="noopener">Eirture</a></p>
+<blockquote>
+<p>译者：建议感兴趣的朋友阅读原文，博主水平非常有限，许多地方不能准确表达原博主的思想，望多多指教。</p>
+</blockquote>
+<p>在<a href="https://eirture.github.io/2016/12/08/uCorp/" target="_blank" rel="noopener">上篇文章</a>中，向你介绍了我们最新的 <a href="https://github.com/Yalantis/uCrop" target="_blank" rel="noopener">Android 图片裁剪库</a>，它的裁剪体验比现有的任何一个方案都要好。也许你已经见过这个库：发布后不久，uCrop 在 GitHub 上获得了很多关注。并在 GitHub 的 trending repositories 列表中取得领先的地位。<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6lehmzfj30m80dtmxw.jpg" alt=""></p>
+<p>如果你喜欢，可以<a href="https://www.producthunt.com/tech/ucrop" target="_blank" rel="noopener">在 Product Hunt 上为 uCrop 投票</a>。现在让我们开始深入研究开发 uCrop 的一些技术细节。读完这篇文章后，希望 Android 上的图片裁剪在你眼里能变得更容易些。</p>
+<a id="more"></a>
+
+<h3 id="uCrop-的挑战"><a href="#uCrop-的挑战" class="headerlink" title="uCrop 的挑战"></a>uCrop 的挑战</h3><p>开始这个项目时，我定义了一组相当简单的特性：</p>
+<ul>
+<li>裁剪图片</li>
+<li>支持任意长宽比</li>
+<li>使用手势缩放、移动和旋转</li>
+<li>防止裁剪区内的图片上留下空白的部分</li>
+<li>创建一个随时可用的裁剪 Activity，并且它可以使用它内部的裁剪视图。换句话说，这个库包含一个 Activity，里面包含了一个裁剪视图和一些附加组件。</li>
+</ul>
+<h3 id="裁剪的视图"><a href="#裁剪的视图" class="headerlink" title="裁剪的视图"></a>裁剪的视图</h3><p>计划构建这组特性，决定将逻辑视图分为三层。</p>
+<ol>
+<li><p><em>TransformImageView</em> extends <em>ImageView</em>.</p>
+<p>必须可以：</p>
+<ol>
+<li>从源设置图片</li>
+<li>在当前图片上应用变换（位移、缩放和旋转）矩阵</li>
+</ol>
+</li>
+<li><p><em>CropImageView</em> extends <em>TransformImageView</em>.</p>
+<p>包括：</p>
+<ol>
+<li>绘制裁剪框和网格</li>
+<li>给裁剪区设置图片（如果用户放大或是旋转图片导致在裁剪框内出现空白区域，图片将会自动移动或/且缩放回来，来适应至裁剪框没有空白区域）</li>
+<li>更具体规则的变换矩阵的扩展方法（如限制最大和最小的缩放等..）</li>
+<li>添加进出缩放动画的方法（动画变换）</li>
+<li>裁剪图片</li>
+</ol>
+<p>这一层差不多有我们想要去变换和裁剪图片的所有事情。但它仅仅只是指定方法来做这里所有的事情，我们还要支持手势呢。</p>
+</li>
+<li><p><em>GestureImageView</em> extends <em>CropImageView</em>.</p>
+<p>这层的功能是：</p>
+<ol>
+<li>监听用户的手势，调用相应的方法。</li>
+</ol>
+</li>
+</ol>
+<h3 id="TransformImageView"><a href="#TransformImageView" class="headerlink" title="TransformImageView"></a>TransformImageView</h3><p>这是最简单的部分。</p>
+<p>首先，拿到一个 Uri 并且解析出合适尺寸的位图（bitmap）。从拿到这个 FileDescriptor 开始：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ParcelFileDescriptor parcelFileDescriptor &#x3D; context.getContentResolver().openFileDescriptor(uri, &quot;r&quot;);</span><br><span class="line">FileDescriptor fileDescriptor &#x3D; parcelFileDescriptor.getFileDescriptor();</span><br></pre></td></tr></table></figure>
+
+<p>现在，可以使用 BitmapFactory 方法来解析这个 FileDescriptor。</p>
+<p>但是解析位图之前，必须要知道它的尺寸，因为如果它的分辨率太高，取到的将是个缩略图( subsampled )。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">final BitmapFactory.Options options &#x3D; new BitmapFactory.Options();</span><br><span class="line"></span><br><span class="line">options.inJustDecodeBounds &#x3D; true;</span><br><span class="line">BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);</span><br><span class="line">options.inSampleSize &#x3D; calculateInSampleSize(options, requiredWidth, requiredHeight);</span><br><span class="line">options.inJustDecodeBounds &#x3D; false;</span><br><span class="line"></span><br><span class="line">Bitmap decodeSampledBitmap &#x3D; BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);</span><br><span class="line">close(parcelFileDescriptor);</span><br><span class="line"></span><br><span class="line">ExifInterface exif &#x3D; getExif(uri);</span><br><span class="line">if (exif !&#x3D; null) &#123;</span><br><span class="line">  int exifOrientation &#x3D; exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);</span><br><span class="line">  return rotateBitmap(decodeSampledBitmap, exifToDegrees(exifOrientation));</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  return decodeSampledBitmap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我想指出 <strong>关于位图尺寸两个有趣的点</strong>。</p>
+<p><strong>1. 如何给图片设置需要的宽/高</strong></p>
+<p><em>calculateInSampleSize(options, requiredWidth, requiredHeight)</em> 方法计算 SampleSize 的原则是，图片的任何一边都不超过要求的值。</p>
+<p>如何得到图片所需的宽/高？许多开发者使用常量（如，某个裁剪库使用 1000px 作为位图最大尺寸。）来解决。然而，对于如此之多的 Android 设备，找出一个常数来适应所有的屏幕，看上去不是一个好方法。我可以用一个视图的尺寸，或者根据用户当前可用内存来计算一个位图尺寸。然而，我并没有使用视图的尺寸，因为用户不仅仅是看这张图：他们会缩放图片，所以我需要一些建议。实现内存和图片质量之间取得平衡的技术也是非常复杂。</p>
+<p>简短的研究后，我决定使用屏幕的对角线作为位图的最大宽/高。屏幕对角线是使用的很普遍的值。大屏和硬件配置高的设备有高的显示密度，低配，便宜或是老的设备屏幕小，显示密度底并且硬件性能不好。如果一个设备处理自己的屏幕，肯定会把图片缩小到屏幕的尺寸。</p>
+<p>从 Android 2.3.3 的 ldpi 分辨率的垃圾手机 (crap-phones) 一直到 9 寸变态屏幕的品牌全新手机 Nexus 9，我都测试了这个方法，也很满意内存和图片质量的平衡效果。如果图片尺寸有任何问题，可以通过 builder 来改变它的值，也可以直接设置到图片上。</p>
+<p><strong>2. 如何将转换应用到矩阵上，再将变换后的矩阵作用到图片上？</strong></p>
+<p>我为变换创建了三个方法：(1) 图片位置，(2) 缩放和 (3) 旋转角度。例如，让我们看下图片缩放的方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public void postScale(float deltaScale, float px, float py) &#123;</span><br><span class="line">  if (deltaScale !&#x3D; 0) &#123;</span><br><span class="line">      mCurrentImageMatrix.postScale(deltaScale, deltaScale, px, py);</span><br><span class="line">      setImageMatrix(mCurrentImageMatrix);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这点没什么特别的：这个方法简单的检查给定的值是否非 0 ， 然后将它应用到当前图片矩阵上。</p>
+<p>由于我覆写了 <em>setImageMatrix()</em> 方法，它用给定的矩阵调用父类的方法，也调用了 <em>updateCurrentImagePoints()</em> 方法去更新 CropImageView 类中几个需要的变量。</p>
+<p><em>TransformImageView</em> 的逻辑准备好了，我开始实现这个库中更有趣更有挑战的部分。</p>
+<h3 id="CropImageView"><a href="#CropImageView" class="headerlink" title="CropImageView"></a>CropImageView</h3><h4 id="裁剪参考线"><a href="#裁剪参考线" class="headerlink" title="裁剪参考线"></a>裁剪参考线</h4><p>我在 <em>TransformImageView</em> 上面添加的第一部分是裁剪参考线。当你想相对图片的中心和 X/Y 轴来调整位置时，这是相当有用的。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6nqtanuj30ci0m8q4m.jpg" alt=""></p>
+<p>图片参考线是由一个矩形构成，矩形内部有水平和垂直的线。在画布上绘制线条很容易，如果你在这方面有问题，可以在网上找到很多相关的信息。你也可以看我们的开源项目是如何实现的。</p>
+<p>关于裁剪参考线，另一件我唯一想提的事是我为裁剪区域计算了内边距。而且，使用了半透明的黑色标注了裁剪区以外的区域，更好的展现哪里会裁剪，哪里不会裁剪。</p>
+<h4 id="确保裁剪区内没有空白区域"><a href="#确保裁剪区内没有空白区域" class="headerlink" title="确保裁剪区内没有空白区域"></a>确保裁剪区内没有空白区域</h4><p>我的想法是，用户必须可以移动，旋转和缩放图片（三个动作可以同时执行）。而且，当用户放开图片后裁剪框内不能有空白区域。我该怎么做到这点？这里有两个可行的方案：</p>
+<ol>
+<li>通过裁剪边界限制图片的变换，就是说，如果图片已经在裁剪区的边缘，用户就不能再缩小，旋转或是移动图片了。</li>
+<li>随意让用户移动图片，但是当图片被释放后自动修复它的位置和尺寸。</li>
+</ol>
+<p>第一种操作的用户体验很糟糕，所以我选择了第二个。</p>
+<p>这样呢，我必须解决两个问题： (1) 如何检测裁剪框是否被图片填满； (2) 如何计算所需的变换，让图片一定可以返回到边界内。</p>
+<h4 id="检查图片是否充满整个裁剪区"><a href="#检查图片是否充满整个裁剪区" class="headerlink" title="检查图片是否充满整个裁剪区"></a>检查图片是否充满整个裁剪区</h4><p>开始，有两个矩形：图片框和裁剪框。图片必需适应裁剪框以至裁剪框完全在图片框内部。至少，它们的边必需接触。如果两个矩形是坐标轴方向的，那这个任务相当简单：仅需调用 Rect 类的 contains() 方法就可以了。但在这里，图片的矩形是能够自由转动的。真糟糕！</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6nudjshj30m80anwep.jpg" alt="左边：图片框没有填满裁剪框。右边：图片框填满了裁剪框"></p>
+<p>首先，如何检测一个斜的矩形是否包含了一个坐标轴方向的矩形，让我很困惑。然后我尽力回忆曾学的很好的三角函数课程，并不断在纸上做计算。但我突然意识到，如果反过来思考这个问题将变得很容易解决：如何检测坐标轴方向矩形是否覆盖这个倾斜矩形？</p>
+<p><img src="https://yalantis.com/uploads/ckeditor/pictures/67/content_scheme2.jpg" alt="与坐标轴方向图片矩形一样"></p>
+<p>它现在看起来没那么难了！只需要知道裁剪框的四个角是不是都在图片框中。</p>
+<p>mCropRect 变量已经定义过了。所以呢，唯一需要的是图片四个顶点的数组。</p>
+<p>前面提到过 setImageMatrix(Matrix matrix) 方法。调用的 updateCurrentImagePoints() 方法，是利用矩阵的 mapPoints 方法实现的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">private void updateCurrentImagePoints() &#123;</span><br><span class="line">  mCurrentImageMatrix.mapPoints(mCurrentImageCorners, mInitialImageCorners);</span><br><span class="line">  mCurrentImageMatrix.mapPoints(mCurrentImageCenter, mInitialImageCenter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>图片矩阵每次转变，这里可以拿到更新后的图片中点和所有顶点。所以最后，可以写一个方法来检查当前图片是否覆盖裁剪框：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">protected boolean isImageWrapCropBounds() &#123;</span><br><span class="line">   mTempMatrix.reset();</span><br><span class="line">   mTempMatrix.setRotate(-getCurrentAngle());</span><br><span class="line"></span><br><span class="line">   float[] unrotatedImageCorners &#x3D; Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);</span><br><span class="line">   mTempMatrix.mapPoints(unrotatedImageCorners);</span><br><span class="line"></span><br><span class="line">   float[] unrotatedCropBoundsCorners &#x3D; CropMath.getCornersFromRect(mCropRect);</span><br><span class="line">   mTempMatrix.mapPoints(unrotatedCropBoundsCorners);</span><br><span class="line"></span><br><span class="line">   return CropMath.trapToRect(unrotatedImageCorners).contains(CropMath.trapToRect(unrotatedCropBoundsCorners));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>核心部分，我分别使用一个临时矩阵对象来表示未转动的裁剪框和图片顶点集，然后通过 RectF 类的 contains(RectF rect) 方法检查裁剪框的位置是否完全在图片中。还挺好使。</p>
+<h4 id="变换图片以便它可以覆盖裁剪框"><a href="#变换图片以便它可以覆盖裁剪框" class="headerlink" title="变换图片以便它可以覆盖裁剪框"></a>变换图片以便它可以覆盖裁剪框</h4><p>首先，找到当前图片中心与裁剪框中心的距离。然后通过一个临时矩阵和变量转变图片至裁剪框中心，判断它是否充满整个裁剪框：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">float oldX &#x3D; mCurrentImageCenter[0];</span><br><span class="line">float oldY &#x3D; mCurrentImageCenter[1];</span><br><span class="line"></span><br><span class="line">float deltaX &#x3D; mCropRect.centerX() - oldX;</span><br><span class="line">float deltaY &#x3D; mCropRect.centerY() - oldY;</span><br><span class="line"></span><br><span class="line">mTempMatrix.reset();</span><br><span class="line">mTempMatrix.setTranslate(deltaX, deltaY);</span><br><span class="line"></span><br><span class="line">float[] tempCurrentImageCorners &#x3D; Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);</span><br><span class="line">mTempMatrix.mapPoints(tempCurrentImageCorners);</span><br><span class="line"></span><br><span class="line">boolean willImageWrapCropBoundsAfterTranslate &#x3D; isImageWrapCropBounds(tempCurrentImageCorners);</span><br></pre></td></tr></table></figure>
+<p>这点非常重要，因为如果图片不能完全充满裁剪框，那么矩阵的变换必须与缩放一起应用。</p>
+<p><img src="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/79/content_2_1.gif" alt=""></p>
+<p>因此，我添加了计算 δ 缩放值的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">float currentScale &#x3D; getCurrentScale();</span><br><span class="line">float deltaScale &#x3D; 0;</span><br><span class="line">if (!willImageWrapCropBoundsAfterTranslate) &#123;</span><br><span class="line">  RectF tempCropRect &#x3D; new RectF(mCropRect);</span><br><span class="line">  mTempMatrix.reset();</span><br><span class="line">  mTempMatrix.setRotate(getCurrentAngle());</span><br><span class="line">  mTempMatrix.mapRect(tempCropRect);</span><br><span class="line"></span><br><span class="line">  float[] currentImageSides &#x3D; RectUtils.getRectSidesFromCorners(mCurrentImageCorners);</span><br><span class="line"></span><br><span class="line">  deltaScale &#x3D; Math.max(tempCropRect.width() &#x2F; currentImageSides[0],</span><br><span class="line">          tempCropRect.height() &#x2F; currentImageSides[1]);</span><br><span class="line">  deltaScale &#x3D; deltaScale * currentScale - currentScale;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先，旋转裁剪框的矩形并将它映射到一个临时变量中，然后我在 RectUtils 类中创建了一个方法，使用转动矩形的顶点坐标来计算它的边：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static float[] getRectSidesFromCorners(float[] corners) &#123;</span><br><span class="line">  return new float[]&#123;(float) Math.sqrt(Math.pow(corners[0] - corners[2], 2) + Math.pow(corners[1] - corners[3], 2)),</span><br><span class="line">          (float) Math.sqrt(Math.pow(corners[2] - corners[4], 2) + Math.pow(corners[3] - corners[5], 2))&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过这个方法拿到了当前图片的宽和高。</p>
+<p>最后，我通过一个比例值来达到想要的缩放。</p>
+<p>现在有了图片的移动和缩放（如果需要的话）两个数据。所以我写了一个 Runnable 任务来使用它们。</p>
+<p>跳到 run() 方法，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void run() &#123;</span><br><span class="line"></span><br><span class="line">  long now &#x3D; System.currentTimeMillis();</span><br><span class="line">  float currentMs &#x3D; Math.min(mDurationMs, now - mStartTime);</span><br><span class="line"></span><br><span class="line">  float newX &#x3D; CubicEasing.easeOut(currentMs, 0, mCenterDiffX, mDurationMs);</span><br><span class="line">  float newY &#x3D; CubicEasing.easeOut(currentMs, 0, mCenterDiffY, mDurationMs);</span><br><span class="line">  float newScale &#x3D; CubicEasing.easeInOut(currentMs, 0, mDeltaScale, mDurationMs);</span><br><span class="line"></span><br><span class="line">  if (currentMs &lt; mDurationMs) &#123;</span><br><span class="line">      cropImageView.postTranslate(newX - (cropImageView.mCurrentImageCenter[0] - mOldX), newY - (cropImageView.mCurrentImageCenter[1] - mOldY));</span><br><span class="line">      if (!mWillBeImageInBoundsAfterTranslate) &#123;</span><br><span class="line">          cropImageView.zoomInImage(mOldScale + newScale, cropImageView.mCropRect.centerX(), cropImageView.mCropRect.centerY());</span><br><span class="line">      &#125;</span><br><span class="line">      if (!cropImageView.isImageWrapCropBounds()) &#123;</span><br><span class="line">          cropImageView.post(this);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里计算执行的当前时间，使用 CubicEasing 类，给平移(x,y)和缩放设置了插值。设置插值是优化动画很好的方法。让我们的眼睛看起来更自然。</p>
+<p>最后，这些值会应用于图片的矩阵上。只要满足 context 为空，时间结束或图片已充满裁剪框任意一个条件，Runnable 就结束。</p>
+<p><img src="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/80/content_3_1.gif" alt=""></p>
+<h4 id="裁剪图片"><a href="#裁剪图片" class="headerlink" title="裁剪图片"></a>裁剪图片</h4><p>终于来到了需要裁剪图片这里(吃惊！)。这可是至关重要的功能，不能裁剪图片，这个库就没什么ruan用了。</p>
+<p>开始获取下列计算中需要的当前值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Bitmap viewBitmap &#x3D; getViewBitmap();</span><br><span class="line">if (viewBitmap &#x3D;&#x3D; null) &#123;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">cancelAllAnimations();</span><br><span class="line">setImageToWrapCropBounds(false); &#x2F;&#x2F; without animation</span><br><span class="line"></span><br><span class="line">RectF currentImageRect &#x3D; RectUtils.trapToRect(mCurrentImageCorners);</span><br><span class="line">if (currentImageRect.isEmpty()) &#123;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">float currentScale &#x3D; getCurrentScale();</span><br><span class="line">float currentAngle &#x3D; getCurrentAngle();</span><br></pre></td></tr></table></figure>
+<p>先验证将被裁剪的矩形、屏幕上当前表示变换图片的矩阵、当前的缩放值和旋转角度，再继续下一步：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">if (mMaxResultImageSizeX &gt; 0 &amp;&amp; mMaxResultImageSizeY &gt; 0) &#123;</span><br><span class="line">  float cropWidth &#x3D; mCropRect.width() &#x2F; currentScale;</span><br><span class="line">  float cropHeight &#x3D; mCropRect.height() &#x2F; currentScale;</span><br><span class="line"></span><br><span class="line">  if (cropWidth &gt; mMaxResultImageSizeX || cropHeight &gt; mMaxResultImageSizeY) &#123;</span><br><span class="line"></span><br><span class="line">      float scaleX &#x3D; mMaxResultImageSizeX &#x2F; cropWidth;</span><br><span class="line">      float scaleY &#x3D; mMaxResultImageSizeY &#x2F; cropHeight;</span><br><span class="line">      float resizeScale &#x3D; Math.min(scaleX, scaleY);</span><br><span class="line"></span><br><span class="line">      Bitmap resizedBitmap &#x3D; Bitmap.createScaledBitmap(viewBitmap,</span><br><span class="line">              (int) (viewBitmap.getWidth() * resizeScale),</span><br><span class="line">              (int) (viewBitmap.getHeight() * resizeScale), false);</span><br><span class="line">      viewBitmap.recycle();</span><br><span class="line">      viewBitmap &#x3D; resizedBitmap;</span><br><span class="line"></span><br><span class="line">      currentScale &#x2F;&#x3D; resizeScale;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以设置输出（最终裁剪出来的图片）的宽高的最大值。比如，你想要一张最大宽高为 500px 的头像，你可以使用这个库来裁剪照片得到。</p>
+<p>在上面的代码块中，我检查了是否指定了最大值，以及裁剪后的图片是否大于这些值。当需要压缩图片时，就调用 Bitmap.createScaledBitmap 方法，并且回收原来的位图，将压缩应用于 currentScale 值上，以便进一步的计算不会受到影响。</p>
+<p>现在，是检查图片是否旋转的时候了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">if (currentAngle !&#x3D; 0) &#123;</span><br><span class="line">  mTempMatrix.reset();</span><br><span class="line">  mTempMatrix.setRotate(currentAngle, viewBitmap.getWidth() &#x2F; 2, viewBitmap.getHeight() &#x2F; 2);</span><br><span class="line"></span><br><span class="line">  Bitmap rotatedBitmap &#x3D; Bitmap.createBitmap(viewBitmap, 0, 0, viewBitmap.getWidth(), viewBitmap.getHeight(),</span><br><span class="line">          mTempMatrix, true);</span><br><span class="line">  viewBitmap.recycle();</span><br><span class="line">  viewBitmap &#x3D; rotatedBitmap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样在这里：如果 currentAngle 不等于 0，就使用 Bitmap.createBitmap 方法来转动当前的位图，然后回收它（没人喜欢 OutOfMemoryException）。</p>
+<p>最后，计算了图片上必须裁剪区域矩形的坐标：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int top &#x3D; (int) ((mCropRect.top - currentImageRect.top) &#x2F; currentScale);</span><br><span class="line">int left &#x3D; (int) ((mCropRect.left - currentImageRect.left) &#x2F; currentScale);</span><br><span class="line">int width &#x3D; (int) (mCropRect.width() &#x2F; currentScale);</span><br><span class="line">int height &#x3D; (int) (mCropRect.height() &#x2F; currentScale);</span><br><span class="line"></span><br><span class="line">Bitmap croppedBitmap &#x3D; Bitmap.createBitmap(viewBitmap, left, top, width, height);</span><br></pre></td></tr></table></figure>
+<p>这里真没什么复杂的。只考虑了 currentScale 的值，然后调用了 Bitmap.createBitmap 方法。由于上述的方法，生成的位图必须正确的旋转和缩放。</p>
+<h3 id="GestureImageView"><a href="#GestureImageView" class="headerlink" title="GestureImageView"></a>GestureImageView</h3><p>在 TransformImageView 中添加了图片的移动，旋转和缩放方法后，紧接着就创建了这一层，因为它对于测试、调试、UX 调整以及尽早获得反馈至关重要。当然，随着这个库开发的脚步，手势逻辑和支持的手势也在改变。</p>
+<p>让我们再来看一下我需要支持什么手势：</p>
+<h4 id="1-缩放手势"><a href="#1-缩放手势" class="headerlink" title="1. 缩放手势"></a>1. 缩放手势</h4><p>图片必须响应几个能够改变缩放级别的手势：</p>
+<ul>
+<li>双击放大</li>
+<li>两根手指的捏伸</li>
+</ul>
+<h4 id="2-滚动（平面）手势"><a href="#2-滚动（平面）手势" class="headerlink" title="2. 滚动（平面）手势"></a>2. 滚动（平面）手势</h4><p>用户可以通过手指拖动来滚动（平面）图片。</p>
+<h4 id="3-旋转手势"><a href="#3-旋转手势" class="headerlink" title="3. 旋转手势"></a>3. 旋转手势</h4><p>用户可以用两根手指在图片上旋转来转动图像。</p>
+<p>此外，所有这些手势必须能够同时工作，并且必须对于用户手指之间的焦点应用所有的图片转换。这样给你的感觉就像是真的在设备的屏幕上拖动图片一样。</p>
+<p>幸运的是，Android SDK 为我们开发者提供了两个方便的类：GestureDetector 和 ScaleGestureDetector. 两个类都有很多接口，这里只关注 onScroll,onScale 和 onDoubleTap 的回调。简而言之，已经有除了旋转检测以外所有的解决方案。很不幸，在 SDK 中没有内置的旋转手势检测，但经过一些研究，根据一些文章和 StackOverflow 上的回答，我设法自己造了一个。</p>
+<p>来看一段代码。</p>
+<p>首先，定义了手势监听者:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener</span><br><span class="line">  @Override</span><br><span class="line">  public boolean onScale(ScaleGestureDetector detector) &#123;</span><br><span class="line">      postScale(detector.getScaleFactor(), mMidPntX, mMidPntY);</span><br><span class="line">      return true;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private class GestureListener extends GestureDetector.SimpleOnGestureListener &#123;</span><br><span class="line">  @Override</span><br><span class="line">  public boolean onDoubleTap(MotionEvent e) &#123;</span><br><span class="line">      zoomImageToPosition(getDoubleTapTargetScale(), e.getX(), e.getY(), DOUBLE_TAP_ZOOM_DURATION);</span><br><span class="line">      return super.onDoubleTap(e);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) &#123;</span><br><span class="line">      postTranslate(-distanceX, -distanceY);</span><br><span class="line">      return true;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private class RotateListener extends RotationGestureDetector.SimpleOnRotationGestureListener &#123;</span><br><span class="line">  @Override</span><br><span class="line">  public boolean onRotation(RotationGestureDetector rotationDetector) &#123;</span><br><span class="line">      postRotate(rotationDetector.getAngle(), mMidPntX, mMidPntY);</span><br><span class="line">      return true;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，创建了检测者对象并指定了上面定义的监听者：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">private void setupGestureListeners() &#123;</span><br><span class="line">  mGestureDetector &#x3D; new GestureDetector(getContext(), new GestureListener(), null, true);</span><br><span class="line">  mScaleDetector &#x3D; new ScaleGestureDetector(getContext(), new ScaleListener());</span><br><span class="line">  mRotateDetector &#x3D; new RotationGestureDetector(new RotateListener());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>你也许注意到尚未定义的 <em>mMidPntX</em> 和 <em>mMidPntY</em> 变量和 <em>getDoubleTapTargetScale()</em> 方法。实际上， <em>mMidPntX</em> 和 <em>mMidPntY</em> 是设备屏幕上的两个手指之间的点的坐标，它帮助图像矩阵正确的应用图片变换。 <em>getDoubleTapTargetScale()</em> 方法根据 <em>mDoubleTapScaleSteps</em> 变量计算缩放值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">protected float getDoubleTapTargetScale() &#123;</span><br><span class="line">  return getCurrentScale() * (float) Math.pow(getMaxScale() &#x2F; getMinScale(), 1.0f &#x2F; mDoubleTapScaleSteps);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>例如，默认的 <em>mDoubleTapScaleSteps</em> 的值是 5，因此用户能够通过 5 次双击将图片从最小缩放到最大。</p>
+<p>但是，所有这些手势的监听者都是静默的，直到你触发一些触摸事件。这部可以说是锦上添花：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean onTouchEvent(MotionEvent event) &#123;</span><br><span class="line">  if ((event.getAction() &amp; MotionEvent.ACTION_MASK) &#x3D;&#x3D; MotionEvent.ACTION_DOWN) &#123;</span><br><span class="line">      cancelAllAnimations();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (event.getPointerCount() &gt; 1) &#123;</span><br><span class="line">      mMidPntX &#x3D; (event.getX(0) + event.getX(1)) &#x2F; 2;</span><br><span class="line">      mMidPntY &#x3D; (event.getY(0) + event.getY(1)) &#x2F; 2;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  mGestureDetector.onTouchEvent(event);</span><br><span class="line">  mScaleDetector.onTouchEvent(event);</span><br><span class="line">  mRotateDetector.onTouchEvent(event);</span><br><span class="line"></span><br><span class="line">  if ((event.getAction() &amp; MotionEvent.ACTION_MASK) &#x3D;&#x3D; MotionEvent.ACTION_UP) &#123;</span><br><span class="line">      setImageToCropBounds();</span><br><span class="line">  &#125;</span><br><span class="line">  return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>检查每次触发的事件是 <em>ACTION_DOWN</em> 还是 <em>ACTION_UP</em> 。</p>
+<p>让我们想象一下当用户将图片拖出屏幕，然后放开图片。此时将触发 ACTION_UP 的检测，并调用 setImageToCropBounds() 方法。图片开始执行回到裁剪框的动画，在动画执行期间，用户可能再次触摸图像，所以会先检测 ACTION_DOWN 的触发然后再取消返回动画，并根据用户手势做相应的图片转换。</p>
+<p><img src="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/77/content_4_1.gif" alt=""></p>
+<p>在有两根或更多的手指同时触摸屏幕的情况下，更新了 mMidPntX 和 mMidPntY 的值。最后，向每个手势检测者传递了触摸事件。</p>
+<p>就这些了！几个接口和覆写 onTouchEvent 方法就是需要添加到自定义视图上手势检测的所有东西了。</p>
+<h3 id="UCropActivity"><a href="#UCropActivity" class="headerlink" title="UCropActivity"></a>UCropActivity</h3><p>当这个库差不多完成的时候，我拜托我们的设计师为这个 Activity 做一个 UI 设计。</p>
+<p>最后，拿到了这组漂亮的设计图来实现：</p>
+<p><img src="https://yalantis.com/uploads/ckeditor/pictures/71/content_crop_ratio_scale_jpg.jpg" alt=""></p>
+<p>还有一些事，必须重头开始做：</p>
+<ul>
+<li>用于水平滚动的自定义控件</li>
+<li>用于比例切换的选择器控件</li>
+</ul>
+<p>这里就不贴代码了，这些都是很简单的自定义视图，你可以在 GitHub 上拿到这里的代码。</p>
+<p>最终的效果：</p>
+<p><img src="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/76/content_5_1.gif" alt=""></p>
+<p>除了小控件外，这个 Activity 里所有的数据都是从 UCrop 类拿到的，是使用构建者模式设计的，并分别设置了裁剪视图。</p>
+<h3 id="UCrop-Builder"><a href="#UCrop-Builder" class="headerlink" title="UCrop Builder"></a>UCrop Builder</h3><p>这部分，我不想重造轮子，参考了 <a href="https://github.com/jdamcd/android-crop" target="_blank" rel="noopener">SoundCloud 裁剪库</a> 中 Builder 实现的例子，扩展并修改。</p>
+<p>如果你想裁剪一个正方形的用户头像，假设图片最大为 480px，可以这么做：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UCrop.of(sourceUri, destinationUri).withAspectRatio(1, 1).withMaxResultSize(480, 480).start(context);</span><br></pre></td></tr></table></figure>
+
+<h3 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h3><p>开发这个库最大的挑战之一是实现稳定的性能和流畅的界面。最初我在三角函数计算上折磨我的大脑，直到突然意识到，只要通过矩阵就可以解决整套问题。</p>
+<p>我真的特别喜欢最终整体的效果，但仍然并不完美，也没有什么是完美的。我们一定会在 Yalantis 的项目中使用 uCrop 库。就是说，它也一定会有新的版本。我们已经计划了下一版的几个更新点了，也许更多。为什么我们不结合几个库来选择、编辑以及应用图片效果？鬼知道，也许我们会呢？敬请关注这个令人兴奋的项目的进一步的更新，不要忘记在 GitHub 上查看 <a href="https://github.com/Yalantis/uCrop" target="_blank" rel="noopener">uCrop</a> 。</p>
+<p>可以在 Product Hunt 上查看 uCrop，顺便为它<a href="https://www.producthunt.com/tech/ucrop" target="_blank" rel="noopener">投一票</a>！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/translation/" rel="tag"># translation</a>
+              <a href="/tags/android/" rel="tag"># android</a>
+              <a href="/tags/imageview/" rel="tag"># imageview</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/12/08/uCorp/" rel="prev" title="（译）uCrop介绍 —— 我们自己的Android图片裁剪库">
+      <i class="fa fa-chevron-left"></i> （译）uCrop介绍 —— 我们自己的Android图片裁剪库
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/07/22/JavaFx-Application/" rel="next" title="JavaFX 应用">
+      JavaFX 应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#uCrop-的挑战"><span class="nav-number">1.</span> <span class="nav-text">uCrop 的挑战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#裁剪的视图"><span class="nav-number">2.</span> <span class="nav-text">裁剪的视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TransformImageView"><span class="nav-number">3.</span> <span class="nav-text">TransformImageView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CropImageView"><span class="nav-number">4.</span> <span class="nav-text">CropImageView</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#裁剪参考线"><span class="nav-number">4.1.</span> <span class="nav-text">裁剪参考线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#确保裁剪区内没有空白区域"><span class="nav-number">4.2.</span> <span class="nav-text">确保裁剪区内没有空白区域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查图片是否充满整个裁剪区"><span class="nav-number">4.3.</span> <span class="nav-text">检查图片是否充满整个裁剪区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#变换图片以便它可以覆盖裁剪框"><span class="nav-number">4.4.</span> <span class="nav-text">变换图片以便它可以覆盖裁剪框</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#裁剪图片"><span class="nav-number">4.5.</span> <span class="nav-text">裁剪图片</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GestureImageView"><span class="nav-number">5.</span> <span class="nav-text">GestureImageView</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-缩放手势"><span class="nav-number">5.1.</span> <span class="nav-text">1. 缩放手势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-滚动（平面）手势"><span class="nav-number">5.2.</span> <span class="nav-text">2. 滚动（平面）手势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-旋转手势"><span class="nav-number">5.3.</span> <span class="nav-text">3. 旋转手势</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UCropActivity"><span class="nav-number">6.</span> <span class="nav-text">UCropActivity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UCrop-Builder"><span class="nav-number">7.</span> <span class="nav-text">UCrop Builder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结束语"><span class="nav-number">8.</span> <span class="nav-text">结束语</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jie Liu</p>
+  <div class="site-description" itemprop="description">记录点滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/liu-jie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;liu-jie" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eirture" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eirture" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jie Liu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'nmTRDqWRXATznfiuunasDJ5S-gzGzoHsz',
+      appKey     : 'SIu5Sc1qlfAOhi6uociYW8xk',
+      placeholder: "Just go go",
+      avatar     : 'monsterid',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

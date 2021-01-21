@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.eirture.cn","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="原文链接：https:&#x2F;&#x2F;yalantis.com&#x2F;blog&#x2F;introducing-ucrop-our-own-image-cropping-library-for-android 译者：Eirture 我们在 Yalantis 开发了许多不同的 Android 应用，经验告诉我们，几乎在所有的应用中，都需要图片裁剪的功能。图片裁剪的用途很广，从简单的用户头像调整到图片的比例裁剪、灵活变换等各种">
+<meta property="og:type" content="article">
+<meta property="og:title" content="（译）uCrop介绍 —— 我们自己的Android图片裁剪库">
+<meta property="og:url" content="https://blog.eirture.cn/2016/12/08/uCorp/index.html">
+<meta property="og:site_name" content="月光">
+<meta property="og:description" content="原文链接：https:&#x2F;&#x2F;yalantis.com&#x2F;blog&#x2F;introducing-ucrop-our-own-image-cropping-library-for-android 译者：Eirture 我们在 Yalantis 开发了许多不同的 Android 应用，经验告诉我们，几乎在所有的应用中，都需要图片裁剪的功能。图片裁剪的用途很广，从简单的用户头像调整到图片的比例裁剪、灵活变换等各种">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https://yalantis.com/uploads/ckeditor/pictures/4639/screenshot.png">
+<meta property="og:image" content="https://yalantis.com/uploads/ckeditor/pictures/4/content_687474703a2f2f692e696d6775722e636f6d2f334668735467666c2e6a7067.jpeg">
+<meta property="og:image" content="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/42/content_demo.gif">
+<meta property="og:image" content="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/78/content_1_1.gif">
+<meta property="og:image" content="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/44/content_animation.gif">
+<meta property="article:published_time" content="2016-12-08T23:04:18.000Z">
+<meta property="article:modified_time" content="2021-01-21T06:53:54.995Z">
+<meta property="article:author" content="Jie Liu">
+<meta property="article:tag" content="translation">
+<meta property="article:tag" content="android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yalantis.com/uploads/ckeditor/pictures/4639/screenshot.png">
+
+<link rel="canonical" href="https://blog.eirture.cn/2016/12/08/uCorp/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh'
+  };
+</script>
+
+  <title>（译）uCrop介绍 —— 我们自己的Android图片裁剪库 | 月光</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">月光</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Jie's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
+    <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2016/12/08/uCorp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jie Liu">
+      <meta itemprop="description" content="记录点滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="月光">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          （译）uCrop介绍 —— 我们自己的Android图片裁剪库
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-12-08 23:04:18" itemprop="dateCreated datePublished" datetime="2016-12-08T23:04:18+00:00">2016-12-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-01-21 06:53:54" itemprop="dateModified" datetime="2021-01-21T06:53:54+00:00">2021-01-21</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2016/12/08/uCorp/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2016/12/08/uCorp/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>原文链接：<a href="https://yalantis.com/blog/introducing-ucrop-our-own-image-cropping-library-for-android" target="_blank" rel="noopener">https://yalantis.com/blog/introducing-ucrop-our-own-image-cropping-library-for-android</a></p>
+<p>译者：<a href="https://eirture.github.io" target="_blank" rel="noopener">Eirture</a></p>
+<p>我们在 Yalantis 开发了许多不同的 Android 应用，经验告诉我们，几乎在所有的应用中，都需要图片裁剪的功能。图片裁剪的用途很广，从简单的用户头像调整到图片的比例裁剪、灵活变换等各种复杂的处理。</p>
+<p>我们想为所有的用户提供最好的图片处理工具，所以决定创建Android的图片裁剪库 <a href="https://github.com/Yalantis/uCrop" target="_blank" rel="noopener">uCrop</a> 。 可以在 <a href="https://www.producthunt.com/tech/ucrop" target="_blank" rel="noopener">Product Hunt</a> 上为 uCorp 投票。</p>
+<p>也许你会好奇，为什么我们不使用现成的 Android 图片裁剪解决方案。 毕竟，可以在 Github 或者 <a href="http://android-arsenal.com/" target="_blank" rel="noopener">Android Arsenal</a> 上找到很多这类的库。但是问题是，那些解决方案都不满足我们的需求。我们来看一些主流的开源图片裁剪库，为什么不符合我们的需求。</p>
+<a id="more"></a>
+
+<h3 id="为什么其它的开源库不好用"><a href="#为什么其它的开源库不好用" class="headerlink" title="为什么其它的开源库不好用"></a>为什么其它的开源库不好用</h3><ol>
+<li><p><a href="https://github.com/jdamcd/android-crop" target="_blank" rel="noopener">SoundCloud 裁剪库</a></p>
+<p><img src="https://yalantis.com/uploads/ckeditor/pictures/4639/screenshot.png" alt=""></p>
+<p>我在几个项目里面使用了 SoundCloud 库很成功，但是仍然有几个问题让我很头痛。</p>
+<p>首先，你操作的是一个裁剪的框，而不是图片本身。当需要裁剪一个很小面积的图片时，这会你感觉有点痛苦。这是与用户使用习惯向悖的。我确信 Instagram 传授给我们的是一些优秀的 UX (用户体验)，可以移动的裁剪框也已经灭绝了。</p>
+<p>其次，SoundCloud 裁剪库不允许用户旋转图片。Come on, guys! 所有人都知道，有成百上千“不可思议”的安卓手机给照片设置了错误的EXIF信息（谢天谢地，我们有 <a href="https://github.com/commonsguy/cwac-cam2" target="_blank" rel="noopener">CWAC</a> 来清理这个烂摊子）。而且，很大部分的用户是希望能够转动图片的（不仅仅是 90 度）。</p>
+<p>最后同样重要的一点，使用 SoundCloud 库不能改变长宽比。当然，如果你使用它仅仅是需要获取一个方形的头像，那没有任何问题。但是，其它很多很有趣的头像形状，用这个库无法实现。</p>
+</li>
+<li><p><a href="https://github.com/edmodo/cropper" target="_blank" rel="noopener">Edmodo Cropper</a></p>
+<p><img src="https://yalantis.com/uploads/ckeditor/pictures/4/content_687474703a2f2f692e696d6775722e636f6d2f334668735467666c2e6a7067.jpeg" alt=""></p>
+<p> Edmodo Cropper 与 SoundCloud 库非常相似，缺点也同样相似。不过，这个库支持动态的改变裁剪框的长宽比。它也有参考线和一种旋转图片的方式（仅仅只有一种方式，所以你需要想办法解决手势检测或是一些控件来控制自己的手势）。</p>
+</li>
+<li><p><a href="https://github.com/lyft/scissors" target="_blank" rel="noopener">Scissors</a></p>
+<p><img src="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/42/content_demo.gif" alt=""></p>
+<p>Scissors 是一个新的库，不久前我在一个<a href="http://androidweekly.net/issues/issue-181" target="_blank" rel="noopener">安卓问题周刊</a>上看到它的时候特别激动。但 5 分钟内我的兴奋就消失了。引用一句关于 Scissors 的<a href="https://eng.lyft.com/scissors-an-image-cropping-library-for-android-a56369154a19#.ledi6rqrj" target="_blank" rel="noopener">博文</a>：</p>
+<blockquote>
+<p>…我们研究了现有的库。都不符合我们的需求，因此我们决定构建自己库。</p>
+</blockquote>
+<p>这确实是一个值得称赞的方法。实际上，我们找到又是一个不能旋转图片，也不能动态调整宽高比的库。尽管 Scissors 集成了一些主流的图片加载库，像 <a href="https://github.com/square/picasso" target="_blank" rel="noopener">Picasso</a>, <a href="https://github.com/bumptech/glide" target="_blank" rel="noopener">Glide</a> 以及 <a href="https://github.com/nostra13/Android-Universal-Image-Loader" target="_blank" rel="noopener">Universal Image Loader</a>。希望 Scissors 在后续的版本中有更多实用的功能。</p>
+<p><img src="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/78/content_1_1.gif" alt="我喜欢 Scissors 实现的缩放方式。无论你的手指在哪里，图片总是向中间收缩。"></p>
+<p>分析完这些现有库的缺点，我们决定创建<a href="https://github.com/Yalantis/uCrop" target="_blank" rel="noopener">自己的库</a>，支持手势并且有一个良好的 UX。</p>
+</li>
+</ol>
+<h3 id="uCrop：-一个解决图片裁剪问题的库"><a href="#uCrop：-一个解决图片裁剪问题的库" class="headerlink" title="uCrop： 一个解决图片裁剪问题的库"></a>uCrop： 一个解决图片裁剪问题的库</h3><p>  安卓库 uCrop 允许你修剪图片来更好的使用。uCrop 重要的特性如下：</p>
+<ul>
+<li><p>缩放图片</p>
+</li>
+<li><p>旋转图片</p>
+</li>
+<li><p>改变裁剪长宽比例</p>
+</li>
+<li><p>支持出手势：一根指头滑动图片，两根指头旋转图片，捏拉缩放，双击缩放。</p>
+</li>
+<li><p>上手即可用的 Activity 功能设计，精巧的控件实现更精确的图片旋转和缩放，以及一组通用的预设长宽比（1:1，4:3，3:4，2:3，3:2，16:9，9:16 + 图片原始比例）。</p>
+<p><img src="https://yalantis-com-dev-06-09.s3.amazonaws.com/uploads/ckeditor/pictures/44/content_animation.gif" alt=""></p>
+<p>uCrop 有一个初始化的构建类型接口，来为你的应用配置一些适当的属性。uCrop 库最低的版本要求是 API 10，示例应用工作的版本是 API 15+ 。</p>
+</li>
+</ul>
+<h3 id="如何在你的项目中使用-uCrop"><a href="#如何在你的项目中使用-uCrop" class="headerlink" title="如何在你的项目中使用 uCrop ?"></a>如何在你的项目中使用 uCrop ?</h3><ol>
+<li><p>添加 uCrop 库依赖作为本地项目库。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compile &#39;com.yalantis:ucrop:[latest version]&#39;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用构造者模式来创建 uCrop 及配置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">UCrop.of(sourceUri, destinationUri)</span><br><span class="line">  .withAspectRatio(16, 9)</span><br><span class="line">  .withMaxResultSize(maxWidth, maxHeight)</span><br><span class="line">  .start(context);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>覆写 onActivityResult 方法来捕获 uCrop 返回数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void onActivityResult(int requestCode, int resultCode, Intent data) &#123;</span><br><span class="line">    if (resultCode &#x3D;&#x3D; RESULT_OK &amp;&amp; requestCode &#x3D;&#x3D; UCrop.REQUEST_CROP) &#123;</span><br><span class="line">        final Uri resultUri &#x3D; UCrop.getOutput(data);</span><br><span class="line">    &#125; else if (resultCode &#x3D;&#x3D; UCrop.RESULT_ERROR) &#123;</span><br><span class="line">        final Throwable cropError &#x3D; UCrop.getError(data);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="如何自定义-uCrop"><a href="#如何自定义-uCrop" class="headerlink" title="如何自定义 uCrop"></a>如何自定义 uCrop</h3><p>  你可以改变下面这个设置：</p>
+<ul>
+<li><p>压缩格式 (e.g. PNG, JPEG, WEBP)。</p>
+</li>
+<li><p>压缩的质量[0 - 100] (PNG 是无损的，会忽略质量设置)</p>
+</li>
+<li><p>支持并发的手势</p>
+</li>
+<li><p>Bitmap 最大的尺寸是从 Uri 中解码来的，并且同样会在裁剪的视图中。(如果你想覆盖默认的属性)</p>
+</li>
+<li><p>更多(e.g. color palette)</p>
+<p>在下一篇文章中，将会展示我们构建 <a href="https://github.com/Yalantis/uCrop" target="_blank" rel="noopener">uCrop</a> 的经历，敬请关注！</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/translation/" rel="tag"># translation</a>
+              <a href="/tags/android/" rel="tag"># android</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/11/28/todolist-animation/" rel="prev" title="（译）如何使用 Micro-Transitions 在 To-Do List 中实现流畅的动画">
+      <i class="fa fa-chevron-left"></i> （译）如何使用 Micro-Transitions 在 To-Do List 中实现流畅的动画
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/12/13/How-We-Create-uCrop/" rel="next" title="（译）uCrop 的创建过程">
+      （译）uCrop 的创建过程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么其它的开源库不好用"><span class="nav-number">1.</span> <span class="nav-text">为什么其它的开源库不好用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#uCrop：-一个解决图片裁剪问题的库"><span class="nav-number">2.</span> <span class="nav-text">uCrop： 一个解决图片裁剪问题的库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何在你的项目中使用-uCrop"><span class="nav-number">3.</span> <span class="nav-text">如何在你的项目中使用 uCrop ?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何自定义-uCrop"><span class="nav-number">4.</span> <span class="nav-text">如何自定义 uCrop</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jie Liu</p>
+  <div class="site-description" itemprop="description">记录点滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/liu-jie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;liu-jie" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/eirture" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;eirture" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jie Liu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'nmTRDqWRXATznfiuunasDJ5S-gzGzoHsz',
+      appKey     : 'SIu5Sc1qlfAOhi6uociYW8xk',
+      placeholder: "Just go go",
+      avatar     : 'monsterid',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
