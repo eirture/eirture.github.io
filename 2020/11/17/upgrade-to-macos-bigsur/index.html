@@ -28,7 +28,7 @@
 <meta property="og:description" content="故事2020&#x2F;11&#x2F;16 中午在工作电脑，更新 Big Sur。之前在运行更新程序时候，中途就会提示“更新时候出现一个错误…”，无法成功升级。 中午将电脑重启了一下，开始更新，前期顺利，中途系统重启，进入更新模式。问题出现，提示更新出现错误。重启电脑，继续走更新的流程，同样无法更新成功。至此，无法正常进入原系统。 开始考虑从 TimeMachine 恢复，Command+Option+R 启动，选">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-11-17T19:19:00.000Z">
-<meta property="article:modified_time" content="2021-01-21T06:57:35.564Z">
+<meta property="article:modified_time" content="2021-01-21T07:11:42.769Z">
 <meta property="article:author" content="Jie Liu">
 <meta property="article:tag" content="macOS">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-01-21 06:57:35" itemprop="dateModified" datetime="2021-01-21T06:57:35+00:00">2021-01-21</time>
+                <time title="Modified: 2021-01-21 07:11:42" itemprop="dateModified" datetime="2021-01-21T07:11:42+00:00">2021-01-21</time>
               </span>
 
           
@@ -223,8 +223,6 @@
         <h2 id="故事"><a href="#故事" class="headerlink" title="故事"></a>故事</h2><p>2020/11/16 中午在工作电脑，更新 Big Sur。之前在运行更新程序时候，中途就会提示“更新时候出现一个错误…”，无法成功升级。</p>
 <p>中午将电脑重启了一下，开始更新，前期顺利，中途系统重启，进入更新模式。问题出现，提示更新出现错误。重启电脑，继续走更新的流程，同样无法更新成功。至此，无法正常进入原系统。</p>
 <p>开始考虑从 TimeMachine 恢复，Command+Option+R 启动，选择”从时间机器恢复“。恢复过程比较慢，一次大概需要 50 分钟左右，恢复时，需要选择恢复的磁盘，此时系统中多出一块名为 Update xxx 的分区。（后面猜想是不是直接将这个分区删掉，可以有办法重新引导到原分区启动？）将 Update 分区删除，原数据分区删除。格式化后，开始从 TM 恢复系统。恢复完成，电脑重启，走进度条，不到一半，就黑屏。重启还是一样。猜想可能失败了。</p>
-<a id="more"></a>
-
 <p>Command+R 中没有其他选项（可能是前面将恢复的分区删掉了）</p>
 <p>安装初始系统（使用了 Shift+Command+Option+R，官方文档说，这会安装电脑最初版本系统，Command+Option+R 会安装最新兼容版系统，当时不知道！）</p>
 <p>30+ 分钟后，安装好初始版本系统。成功登录系统后，再次尝试从 TM 恢复整个系统。漫长的恢复过程完成，还是一样无法顺利开机。</p>
