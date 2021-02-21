@@ -158,6 +158,124 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
+    <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2021/01/31/precision-lost-in-double-value-of-java/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jie Liu">
+      <meta itemprop="description" content="记录点滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="月光">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/31/precision-lost-in-double-value-of-java/" class="post-title-link" itemprop="url">Java 中的浮点数相加顺序不同造成结果不同</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-01-31 18:37:10" itemprop="dateCreated datePublished" datetime="2021-01-31T18:37:10+00:00">2021-01-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-02-21 20:29:00" itemprop="dateModified" datetime="2021-02-21T20:29:00+00:00">2021-02-21</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/01/31/precision-lost-in-double-value-of-java/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/31/precision-lost-in-double-value-of-java/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近在工作中遇到一个有趣的问题，有个组的同学把代码提交到代码仓库，CI 运行单元测试总是失败。在本地运行又是没有问题的。<br>于是就帮他们找一下原因。其中失败的代码是一段求和后比较结果的代码。 CI 是在 k8s 中运行的。所以我用 docker<br>在本地使用相同镜像，模拟容器运行环境，发现也不能通过。好事，可以在本地复现，方便调试。</p>
+<p>加了一些调试日志，最终把问题定位在几个 double 类型数求和的结果上。容器内运行时，几个数求和的结果和我在本机电脑上求和<br>出来相差 4。仔细对比了每一个数是否一致，确实都是一样的。但结果就是不一样。把几个数放到自<br>己电脑计算一遍。居然与测试用例中的结果不一样。唯一的区别就是求和时候的顺序不一样。如下面这张图。</p>
+<p><img src="https://pic.eirture.cn/pics/%E6%88%AA%E5%B1%8F2021-01-28%20%E4%B8%8B%E5%8D%883.42.03.png" alt=""></p>
+<h2 id="为什么浮点数不精确"><a href="#为什么浮点数不精确" class="headerlink" title="为什么浮点数不精确"></a>为什么浮点数不精确</h2><p>我们都知道浮点数是不精确的。为什么不精确呢？是所有的浮点数都是不精确的吗？</p>
+<p>想要回答这个问题，我们先需要了解一下浮点数是如何被存储在计算机中的。</p>
+<h2 id="浮点类型存储结构"><a href="#浮点类型存储结构" class="headerlink" title="浮点类型存储结构"></a>浮点类型存储结构</h2><p>先简单回顾一下，Java 中的浮点数存储遵循 <a href="https://zh.wikipedia.org/wiki/IEEE_754" target="_blank" rel="noopener">IEEE 754</a> 标准。</p>
+<p>单精度类型存储结构：</p>
+<img src="https://pic.eirture.cn/pics/Float_example.png" style="background-color:white"/>
+
+<p>双精度类型存储结构：</p>
+<p><img src="https://pic.eirture.cn/pics/General_double_precision_float.png" alt=""></p>
+<p>IEEE 754 将浮点型数字存储分为 3 部分：</p>
+<ul>
+<li>符号域（记录该数字正负）</li>
+<li>指数域（记录尾数位偏移）</li>
+<li>分数域（记录数字值）</li>
+</ul>
+<p>浮点数的实际值，等于符号位（sign bit）乘以指数偏移值(exponent bias)再乘以分数值(fraction)。</p>
+<h2 id="溢出"><a href="#溢出" class="headerlink" title="溢出"></a>溢出</h2><p>什么时候会溢出呢？就是当浮点数的长度超过分数域长度时，精度就会丢失。我们先不考虑小数部分，正整数什么时候会丢失精度。double 类型分数值位 52 位。最大可以表示 <code>2^52 - 1</code>。但是分数域还默认最开始有个 <code>1</code>。所以最大可以表示的数位 <code>2^53 - 1</code></p>
+<p><code>2^53</code> 二进制表示， <code>10...0</code> 后面 53 个 <code>0</code>。 此时因为最后丢弃的一位是 0，其实精度并没有丢失。但我们再加 1，我们看看值会是多少。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Scratch</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">double</span> a = <span class="number">9007199254740992</span>d; <span class="comment">// 1&lt;&lt;53</span></span><br><span class="line">        System.out.printf(<span class="string">"%f\n"</span>, a-<span class="number">1</span>);</span><br><span class="line">        System.out.printf(<span class="string">"%f\n"</span>, a);</span><br><span class="line">        System.out.printf(<span class="string">"%f\n"</span>, a+<span class="number">1</span>);  <span class="comment">// 丢失精度</span></span><br><span class="line">        System.out.printf(<span class="string">"%f\n"</span>, a+<span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">9007199254740991.000000  &#x2F;&#x2F; 最后一位 1 还在</span><br><span class="line">9007199254740992.000000</span><br><span class="line">9007199254740992.000000  &#x2F;&#x2F; 最后一位 1 丢失</span><br><span class="line">9007199254740994.000000</span><br></pre></td></tr></table></figure>
+
+<p>第三行输出，因为 2 进制最后一位 1 丢失，所以 a+1 并没有等于 <code>9007199254740993.000000</code>。</p>
+<h2 id="溢出浮点数相加顺序造成结果不一致"><a href="#溢出浮点数相加顺序造成结果不一致" class="headerlink" title="溢出浮点数相加顺序造成结果不一致"></a>溢出浮点数相加顺序造成结果不一致</h2><p>当我们直接拿一个正常的数 b 与溢出的浮点数 a 相加，无论是 <code>a + b</code> 还是 <code>b + a</code> 结果都是一样的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Scratch</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">double</span> a = <span class="number">2.1412017680568428E16</span>;</span><br><span class="line">        <span class="keyword">double</span> b = <span class="number">279172004458.330000</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">double</span> c = <span class="number">1.084722219338E10</span>;</span><br><span class="line">        <span class="keyword">double</span> d = <span class="number">2.6832478226495E11</span>;</span><br><span class="line"></span><br><span class="line">        System.out.printf(<span class="string">"%f\n"</span>, a + b);</span><br><span class="line">        System.out.printf(<span class="string">"%f\n"</span>, b + a);</span><br><span class="line">        System.out.println(<span class="string">"-------"</span>);</span><br><span class="line">        System.out.printf(<span class="string">"%f\n"</span>, a + c + d);</span><br><span class="line">        System.out.printf(<span class="string">"%f\n"</span>, c + d + a);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">21412296852572888.000000</span><br><span class="line">21412296852572888.000000</span><br><span class="line">-------</span><br><span class="line">21412296852572884.000000</span><br><span class="line">21412296852572888.000000</span><br></pre></td></tr></table></figure>
+
+<p>a 的二进制表示为 <code>1001100000100100001110111011011110001100101000001101100</code>, 有 55 位，分数位的值为 <code>0011000001001000011101110110111100011001010000011011</code>，最后两位丢失。</p>
+<p><code>a + c</code> 时，c 的整数位最后两位被舍弃了。再加 d 时，d 的最后两位又舍弃了。但是 <code>c + d</code> 的结果，再加 a 时，最后两位进了一位，相当于再原来舍弃的基础上加了 4（二进制 <code>100</code>）。这就是为什么最终两次计算结果相差 4。而这个取舍规则，有机会再单独写一篇。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>由于一次浮点数不同顺序相加造成不同结果，复习了浮点数是如何存储，解释了为什么浮点数会不精确，以及找到了最终为什么最初两次不同顺序的 double 类型数相加结果相差 4。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://zh.wikipedia.org/wiki/IEEE_754" target="_blank" rel="noopener">IEEE 754 - 维基百科，自由的百科全书</a></li>
+<li><a href="https://www.jianshu.com/p/621bfa3aa168" target="_blank" rel="noopener">float和double表示范围和精度 - 简书</a></li>
+<li><a href="https://www.jianshu.com/p/c51041a791bd" target="_blank" rel="noopener">java中float和double精度问题 - 简书</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2020/11/17/upgrade-to-macos-bigsur/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -189,7 +307,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -277,7 +395,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -364,7 +482,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -451,7 +569,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -539,7 +657,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -625,7 +743,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -719,7 +837,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -807,7 +925,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -899,7 +1017,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
+                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
               </span>
 
           
@@ -935,96 +1053,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/12/08/uCorp/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
-    <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2016/11/28/todolist-animation/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Jie Liu">
-      <meta itemprop="description" content="记录点滴">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="月光">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/11/28/todolist-animation/" class="post-title-link" itemprop="url">（译）如何使用 Micro-Transitions 在 To-Do List 中实现流畅的动画</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-11-28 18:19:39" itemprop="dateCreated datePublished" datetime="2016-11-28T18:19:39+00:00">2016-11-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-10 06:52:17" itemprop="dateModified" datetime="2021-02-10T06:52:17+00:00">2021-02-10</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2016/11/28/todolist-animation/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2016/11/28/todolist-animation/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>原文链接：<a href="https://yalantis.com/blog/how-we-used-micro-transitions-for-smooth-android-to-do-list-animations/" target="_blank" rel="noopener">https://yalantis.com/blog/how-we-used-micro-transitions-for-smooth-android-to-do-list-animations/</a></p>
-<p>译者：<a href="https://eirture.github.io" target="_blank" rel="noopener">Eirture</a></p>
-<p>列表(Lists)在各种类型的应用中都是必不可少的控件，包括时间管理、购物和健身等各类应用。</p>
-<p>To-do list 作为一个独立的类别，经常能在意志(motivation)类应用中找到它，它帮助人们管理时间，避免拖延症，提高效率。To-do list 的工作模式是提醒人们完成排满的日程。</p>
-<p>在Yalantis近期的一个项目，我们有一个小任务，是创建一个 To-do list ，挑战在于我们要做的与众不同并且能给用户带来乐趣，目的是我们需要一些工具，使管理任务列表变得快速和直观。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/11/28/todolist-animation/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -1113,14 +1141,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
