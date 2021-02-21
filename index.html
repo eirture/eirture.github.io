@@ -217,8 +217,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>最近在工作中遇到一个有趣的问题，有个组的同学把代码提交到代码仓库，CI 运行单元测试总是失败。在本地运行又是没有问题的。<br>于是就帮他们找一下原因。其中失败的代码是一段求和后比较结果的代码。 CI 是在 k8s 中运行的。所以我用 docker<br>在本地使用相同镜像，模拟容器运行环境，发现也不能通过。好事，可以在本地复现，方便调试。</p>
-<p>加了一些调试日志，最终把问题定位在几个 double 类型数求和的结果上。容器内运行时，几个数求和的结果和我在本机电脑上求和<br>出来相差 4。仔细对比了每一个数是否一致，确实都是一样的。但结果就是不一样。把几个数放到自<br>己电脑计算一遍。居然与测试用例中的结果不一样。唯一的区别就是求和时候的顺序不一样。如下面这张图。</p>
+          <p>最近在工作中遇到一个有趣的问题，有个组的同学把代码提交到代码仓库，CI 运行单元测试总是失败。在本地运行又是没有问题的。于是就帮他们找一下原因。其中失败的代码是一段求和后比较结果的代码。 CI 是在 k8s 中运行的。所以我用 docker 在本地使用相同镜像，模拟容器运行环境，发现也不能通过。好事，可以在本地复现，方便调试。</p>
+<p>加了一些调试日志，最终把问题定位在几个 double 类型数求和的结果上。容器内运行时，几个数求和的结果和我在本机电脑上求和出来相差 4。仔细对比了每一个数是否一致，确实都是一样的。但结果就是不一样。把几个数放到自己电脑计算一遍。与测试用例中的结果不一样。唯一的区别就是求和时候的顺序不一样。如下面这张图。</p>
 <p><img src="https://pic.eirture.cn/pics/%E6%88%AA%E5%B1%8F2021-01-28%20%E4%B8%8B%E5%8D%883.42.03.png" alt=""></p>
 <h2 id="为什么浮点数不精确"><a href="#为什么浮点数不精确" class="headerlink" title="为什么浮点数不精确"></a>为什么浮点数不精确</h2><p>我们都知道浮点数是不精确的。为什么不精确呢？是所有的浮点数都是不精确的吗？</p>
 <p>想要回答这个问题，我们先需要了解一下浮点数是如何被存储在计算机中的。</p>
@@ -307,7 +307,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
@@ -395,7 +395,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
@@ -482,7 +482,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
@@ -569,7 +569,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
@@ -657,7 +657,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
@@ -743,7 +743,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
@@ -837,7 +837,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
@@ -925,7 +925,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
@@ -1017,7 +1017,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-02-21 12:37:07" itemprop="dateModified" datetime="2021-02-21T12:37:07+00:00">2021-02-21</time>
+                <time title="Modified: 2021-02-21 12:41:37" itemprop="dateModified" datetime="2021-02-21T12:41:37+00:00">2021-02-21</time>
               </span>
 
           
