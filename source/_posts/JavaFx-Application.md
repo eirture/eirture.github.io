@@ -3,16 +3,14 @@ title: JavaFX 应用
 date: 2017-07-22 17:20:51
 tags: [translation, JavaFX]
 ---
-原文地址：[https://www.tutorialspoint.com/javafx/javafx_application.htm](https://www.tutorialspoint.com/javafx/javafx_application.htm)
-译者：[Eirture](http://blog.eirture.cn)
 
-----
 在这章中，我们将详细讨论 JavaFX 应用的结构，当然也会学习如何创建一个 JavaFX 应用程序。
-<!-- more -->
 
 ## JavaFX 应用结构
 通常，一个 JavaFX 应用包含三个主要的控件：Stage、Scene 和 Nodes。如下图所示：
 ![](https://www.tutorialspoint.com/javafx/images/javafx_application_structure.jpg)
+
+<!-- more -->
 
 ### Stage（舞台）
 一个 Stage（一个窗口）包含 JavaFX 应用中所有的对象。它由 **javafx.stage** 包的 Stage 类表示。主 Stage 由系统创建。系统创建了 Stage 对象后，将其作为参数传入 **Application** 类中 **start()** 方法。
@@ -511,3 +509,6 @@ java JavafxSample
 ```
 执行时，上述程序生成展示文本的 JavaFX 窗口，如下所示。
 ![](https://www.tutorialspoint.com/javafx/images/javafx_window_displaying_text.jpg)
+
+---
+原文：[JavaFX - Application - Tutorialspoint](https://www.tutorialspoint.com/javafx/javafx_application.htm)
