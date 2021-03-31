@@ -1,18 +1,15 @@
 ---
-title: （译）uCrop介绍 —— 我们自己的Android图片裁剪库
+title: 【译】uCrop介绍 —— 我们自己的Android图片裁剪库
 date: 2016-12-08 23:04:18
 tags: [translation, android]
 ---
-
-原文链接：[https://yalantis.com/blog/introducing-ucrop-our-own-image-cropping-library-for-android](https://yalantis.com/blog/introducing-ucrop-our-own-image-cropping-library-for-android)
-
-译者：[Eirture](https://eirture.github.io)
 
 我们在 Yalantis 开发了许多不同的 Android 应用，经验告诉我们，几乎在所有的应用中，都需要图片裁剪的功能。图片裁剪的用途很广，从简单的用户头像调整到图片的比例裁剪、灵活变换等各种复杂的处理。
 
 我们想为所有的用户提供最好的图片处理工具，所以决定创建Android的图片裁剪库 [uCrop](https://github.com/Yalantis/uCrop) 。 可以在 [Product Hunt](https://www.producthunt.com/tech/ucrop) 上为 uCorp 投票。
 
 也许你会好奇，为什么我们不使用现成的 Android 图片裁剪解决方案。 毕竟，可以在 Github 或者 [Android Arsenal](http://android-arsenal.com/) 上找到很多这类的库。但是问题是，那些解决方案都不满足我们的需求。我们来看一些主流的开源图片裁剪库，为什么不符合我们的需求。
+
 <!-- more -->
 
 ### 为什么其它的开源库不好用
@@ -101,3 +98,6 @@ tags: [translation, android]
   * 更多(e.g. color palette)
 
   在下一篇文章中，将会展示我们构建 [uCrop](https://github.com/Yalantis/uCrop) 的经历，敬请关注！
+
+---
+原文：[Introducing uCrop, Our Own Image Cropping Library for Android](https://yalantis.com/blog/introducing-ucrop-our-own-image-cropping-library-for-android)
