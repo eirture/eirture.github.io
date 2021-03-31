@@ -1,20 +1,14 @@
 ---
-title: （译）uCrop 的创建过程
+title: 【译】uCrop 的创建过程
 date: 2016-12-13 19:21:41
 tags: [translation, android, imageview]
 ---
-
-原文链接：[https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/](https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
-
-译者：[Eirture](https://eirture.github.io)
-
-> 译者：建议感兴趣的朋友阅读原文，博主水平非常有限，许多地方不能准确表达原博主的思想，望多多指教。
-
 
 在[上篇文章](https://eirture.github.io/2016/12/08/uCorp/)中，向你介绍了我们最新的 [Android 图片裁剪库](https://github.com/Yalantis/uCrop)，它的裁剪体验比现有的任何一个方案都要好。也许你已经见过这个库：发布后不久，uCrop 在 GitHub 上获得了很多关注。并在 GitHub 的 trending repositories 列表中取得领先的地位。
 ![](https://tva1.sinaimg.cn/large/007S8ZIlly1ggg6lehmzfj30m80dtmxw.jpg)
 
 如果你喜欢，可以[在 Product Hunt 上为 uCrop 投票](https://www.producthunt.com/tech/ucrop)。现在让我们开始深入研究开发 uCrop 的一些技术细节。读完这篇文章后，希望 Android 上的图片裁剪在你眼里能变得更容易些。
+
 <!-- more -->
 
 ### uCrop 的挑战
@@ -479,3 +473,6 @@ UCrop.of(sourceUri, destinationUri).withAspectRatio(1, 1).withMaxResultSize(480,
 我真的特别喜欢最终整体的效果，但仍然并不完美，也没有什么是完美的。我们一定会在 Yalantis 的项目中使用 uCrop 库。就是说，它也一定会有新的版本。我们已经计划了下一版的几个更新点了，也许更多。为什么我们不结合几个库来选择、编辑以及应用图片效果？鬼知道，也许我们会呢？敬请关注这个令人兴奋的项目的进一步的更新，不要忘记在 GitHub 上查看 [uCrop](https://github.com/Yalantis/uCrop) 。
 
 可以在 Product Hunt 上查看 uCrop，顺便为它[投一票](https://www.producthunt.com/tech/ucrop)！
+
+---
+原文：[How We Created uCrop, Our Own Image Cropping Library for Android](https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
