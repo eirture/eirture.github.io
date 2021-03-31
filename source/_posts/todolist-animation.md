@@ -1,18 +1,15 @@
 ---
-title: （译）如何使用 Micro-Transitions 在 To-Do List 中实现流畅的动画
+title: 【译】如何使用 Micro-Transitions 在 To-Do List 中实现流畅的动画
 date: 2016-11-28 18:19:39
 tags: [translation, android]
 ---
-
-原文链接：[https://yalantis.com/blog/how-we-used-micro-transitions-for-smooth-android-to-do-list-animations/](https://yalantis.com/blog/how-we-used-micro-transitions-for-smooth-android-to-do-list-animations/)
-
-译者：[Eirture](https://eirture.github.io)
 
 列表(Lists)在各种类型的应用中都是必不可少的控件，包括时间管理、购物和健身等各类应用。
 
 To-do list 作为一个独立的类别，经常能在意志(motivation)类应用中找到它，它帮助人们管理时间，避免拖延症，提高效率。To-do list 的工作模式是提醒人们完成排满的日程。
 
 在Yalantis近期的一个项目，我们有一个小任务，是创建一个 To-do list ，挑战在于我们要做的与众不同并且能给用户带来乐趣，目的是我们需要一些工具，使管理任务列表变得快速和直观。
+
 <!-- more -->
 
 我们想让用户感觉与他们在屏幕上交互的，就好像是生活中真实立体的物品一样。
@@ -136,3 +133,6 @@ ViewCompat.animate(view).translationX(0).translationY(0).setDuration(Constant.AN
 [Dribbble](https://dribbble.com/shots/2589690-Be-amazing-today)
 
 [GitHub](https://github.com/Yalantis/ToDoList)
+
+---
+原文：[How we used micro-transitions for smooth android to-do list animations](https://yalantis.com/blog/how-we-used-micro-transitions-for-smooth-android-to-do-list-animations/)
