@@ -269,87 +269,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
-    <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2020/11/17/upgrade-to-macos-bigsur/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Jie Liu">
-      <meta itemprop="description" content="记录点滴">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="月光">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/17/upgrade-to-macos-bigsur/" class="post-title-link" itemprop="url">Big Sur 更新引发的惨案</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-17 19:19:00" itemprop="dateCreated datePublished" datetime="2020-11-17T19:19:00+00:00">2020-11-17</time>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/11/17/upgrade-to-macos-bigsur/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/11/17/upgrade-to-macos-bigsur/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="故事"><a href="#故事" class="headerlink" title="故事"></a>故事</h2><p>2020/11/16 中午在工作电脑，更新 Big Sur。之前在运行更新程序时候，中途就会提示“更新时候出现一个错误…”，无法成功升级。</p>
-<p>中午将电脑重启了一下，开始更新，前期顺利，中途系统重启，进入更新模式。问题出现，提示更新出现错误。重启电脑，继续走更新的流程，同样无法更新成功。至此，无法正常进入原系统。</p>
-<p>开始考虑从 TimeMachine 恢复，Command+Option+R 启动，选择”从时间机器恢复“。恢复过程比较慢，一次大概需要 50 分钟左右，恢复时，需要选择恢复的磁盘，此时系统中多出一块名为 Update xxx 的分区。（后面猜想是不是直接将这个分区删掉，可以有办法重新引导到原分区启动？）将 Update 分区删除，原数据分区删除。格式化后，开始从 TM 恢复系统。恢复完成，电脑重启，走进度条，不到一半，就黑屏。重启还是一样。猜想可能失败了。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/17/upgrade-to-macos-bigsur/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2020/07/20/code-reviews/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -994,6 +913,87 @@
   
   
 
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
+    <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2016/11/28/todolist-animation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jie Liu">
+      <meta itemprop="description" content="记录点滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="月光">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/11/28/todolist-animation/" class="post-title-link" itemprop="url">【译】如何使用 Micro-Transitions 在 To-Do List 中实现流畅的动画</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-11-28 18:19:39" itemprop="dateCreated datePublished" datetime="2016-11-28T18:19:39+00:00">2016-11-28</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2016/11/28/todolist-animation/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2016/11/28/todolist-animation/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>列表(Lists)在各种类型的应用中都是必不可少的控件，包括时间管理、购物和健身等各类应用。</p>
+<p>To-do list 作为一个独立的类别，经常能在意志(motivation)类应用中找到它，它帮助人们管理时间，避免拖延症，提高效率。To-do list 的工作模式是提醒人们完成排满的日程。</p>
+<p>在Yalantis近期的一个项目，我们有一个小任务，是创建一个 To-do list ，挑战在于我们要做的与众不同并且能给用户带来乐趣，目的是我们需要一些工具，使管理任务列表变得快速和直观。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/11/28/todolist-animation/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
 
   
   <nav class="pagination">
@@ -1063,14 +1063,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
