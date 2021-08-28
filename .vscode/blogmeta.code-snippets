@@ -18,5 +18,13 @@
 			"---\n"
 		],
 		"description": "metas of a blog post"
+	},
+	"read more": {
+		"scope": "markdown",
+		"prefix": "more",
+		"body": [
+			"<!-- more -->"
+		],
+		"description": "read more"
 	}
 }
