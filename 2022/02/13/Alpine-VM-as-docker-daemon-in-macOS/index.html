@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.eirture.cn","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="根据目前（2022&#x2F;02）最新的 Docker Subscription Service Agreement，Docker Desktop 只对小于 250 员工且年收入不到 1 千万美元的公司，个人用户，教育用途和非商业开源项目，提供免费使用。 对于 Mac 和 Windows 用户来说，如果不能使用 Docker Desktop，还是有非常多的可替代方案。比如 Podman, colima 甚">
+<meta property="og:type" content="article">
+<meta property="og:title" content="macOS docker daemon 探索">
+<meta property="og:url" content="https://blog.eirture.cn/2022/02/13/Alpine-VM-as-docker-daemon-in-macOS/index.html">
+<meta property="og:site_name" content="月光">
+<meta property="og:description" content="根据目前（2022&#x2F;02）最新的 Docker Subscription Service Agreement，Docker Desktop 只对小于 250 员工且年收入不到 1 千万美元的公司，个人用户，教育用途和非商业开源项目，提供免费使用。 对于 Mac 和 Windows 用户来说，如果不能使用 Docker Desktop，还是有非常多的可替代方案。比如 Podman, colima 甚">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2022-02-13T16:02:20.000Z">
+<meta property="article:modified_time" content="2022-02-13T16:02:20.000Z">
+<meta property="article:author" content="Jie Liu">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="macOS">
+<meta property="article:tag" content="container">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.eirture.cn/2022/02/13/Alpine-VM-as-docker-daemon-in-macOS/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh'
+  };
+</script>
+
+  <title>macOS docker daemon 探索 | 月光</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">月光</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Jie's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
+    <link itemprop="mainEntityOfPage" href="https://blog.eirture.cn/2022/02/13/Alpine-VM-as-docker-daemon-in-macOS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jie Liu">
+      <meta itemprop="description" content="记录点滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="月光">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          macOS docker daemon 探索
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-02-13 16:02:20" itemprop="dateCreated datePublished" datetime="2022-02-13T16:02:20+00:00">2022-02-13</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2022/02/13/Alpine-VM-as-docker-daemon-in-macOS/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/02/13/Alpine-VM-as-docker-daemon-in-macOS/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>根据目前（2022/02）最新的 <a href="https://www.docker.com/legal/docker-subscription-service-agreement" target="_blank" rel="noopener">Docker Subscription Service Agreement</a>，Docker Desktop 只对小于 250 员工且年收入不到 1 千万美元的公司，个人用户，教育用途和非商业开源项目，提供免费使用。</p>
+<p>对于 Mac 和 Windows 用户来说，如果不能使用 Docker Desktop，还是有非常多的可替代方案。比如 Podman, colima 甚至 docker-machine。而我个人在比较早期的时候，一直是通过 docker machine 的方式在 Mac 上使用 docker。后来发现 docker machine 不在维护，镜像不再更新。转向使用 Docker Desktop。现在公司因为不在 Docker Desktop 免费使用用户范围内。这里简单记录一下，自己在 Mac 上使用 docker 的方案。</p>
+<p>简单分为三大块</p>
+<ul>
+<li>虚拟机安装</li>
+<li>共享文件</li>
+<li>连通网络</li>
+</ul>
+<h2 id="虚拟机安装"><a href="#虚拟机安装" class="headerlink" title="虚拟机安装"></a>虚拟机安装</h2><p>在非 linux 系统上运行容器服务，本质上都是通过运行一个 linux 虚拟机来实现的。免费常用的虚拟机软件 <a href="https://www.virtualbox.org/" target="_blank" rel="noopener">VirtualBox</a> 可以很好的胜任这个工作。既然我们的目的知识未来通过虚拟机来运行 dockerd 服务。这里选择一个小巧精简的系统 <a href="https://alpinelinux.org/downloads/" target="_blank" rel="noopener">Alpine Linux</a>，它的虚拟系统优化版本只有 54.5 MB。</p>
+<p>VirtualBox 可以在官网下载安装包。除了安装 VirtualBox 本身，还需要安装它的扩展包，在后面的文件共享时依赖于此。同样可以从官网下载到。</p>
+<p>还可以通过 brew 安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ brew install virtualbox</span><br><span class="line"></span><br><span class="line">$ brew install virtualbox-extension-pack</span><br></pre></td></tr></table></figure>
+
+<p>安装好 VirtualBox 后，新建虚拟机，选择创建一个命名为 “docker” 的 64-bit Linux 系统，1 GB 内存。20 GB 动态分配磁盘。创建好以后。在“Tools” - “Network” 中创建一张虚拟网卡。</p>
+<p>在 docker 虚拟机的网络设置中，启用 “Adapter 2”，网络类型选择 “Host-only Adapter”，下面会自动选上我们前面创建好的虚拟网卡。</p>
+<p>再在存储中将我们下好的 Alpine 镜像分配到空的片盘中。就可以开始启动我们的虚拟机了。</p>
+<p>虚拟机启动后，进入安装系统。使用 root 免密登录。输入 <code>setup-alpine</code> 开始安装系统。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">$ setup-alpine</span><br><span class="line"></span><br><span class="line">Select keyboard layout: [none] us</span><br><span class="line"></span><br><span class="line">Select variant (or <span class="string">'abort'</span>): us</span><br><span class="line"></span><br><span class="line">Enter system hostname (fully qualified from, e.g. <span class="string">'foo.example.org'</span>) [localhost]: docker</span><br><span class="line"></span><br><span class="line">Which one <span class="keyword">do</span> you want to initialize? (or <span class="string">'?'</span> or <span class="string">'done'</span>) [eth0]</span><br><span class="line">Ip address <span class="keyword">for</span> eth0? (or <span class="string">'dhcp'</span>, <span class="string">'none'</span>, <span class="string">'?'</span>) [dhcp]</span><br><span class="line">Which one <span class="keyword">do</span> you want to initialize? (or <span class="string">'?'</span> or <span class="string">'done'</span>) [eth1]</span><br><span class="line">Ip address <span class="keyword">for</span> eth1? (or <span class="string">'dhcp'</span>, <span class="string">'none'</span>, <span class="string">'?'</span>) [dhcp]</span><br><span class="line">Do you want to any manual network configuration? (y/n) [n]</span><br><span class="line"></span><br><span class="line">New password: docker</span><br><span class="line">Retype password: docker</span><br><span class="line"></span><br><span class="line">Which timezone are you <span class="keyword">in</span>? (<span class="string">'?'</span> <span class="keyword">for</span> list) [UTC] Asia</span><br><span class="line">Which sub-timezone of <span class="string">'Asiz'</span> are you <span class="keyword">in</span>? (<span class="string">'?'</span> <span class="keyword">for</span> list) Shanghai</span><br><span class="line"></span><br><span class="line">HTTP/FTP proxy URL? (e.g. <span class="string">'http://proxy:8080'</span>, or <span class="string">'none'</span>) [none]</span><br><span class="line">Which NTP client to run? (<span class="string">'busybox'</span>, <span class="string">'openntpd'</span>, <span class="string">'chrony'</span> or <span class="string">'none'</span>) [chrony]</span><br><span class="line"></span><br><span class="line">Enter mirror number (1-62) or URL to add  (or r/f/e/<span class="keyword">done</span>) [1] 31</span><br><span class="line"></span><br><span class="line">Which SSH server? (<span class="string">'openssh'</span>, <span class="string">'dropbear'</span> or <span class="string">'none'</span>) [openssh]</span><br><span class="line"></span><br><span class="line">Which disk(s) would you like to use? (or <span class="string">'?'</span> <span class="keyword">for</span> <span class="built_in">help</span> or <span class="string">'none'</span>) [none] sda</span><br><span class="line"></span><br><span class="line">How would you like to use it? (<span class="string">'sys'</span>, <span class="string">'data'</span>, <span class="string">'crypt'</span>, <span class="string">'lvm'</span> or <span class="string">'?'</span> <span class="keyword">for</span> <span class="built_in">help</span>) [?] sys</span><br><span class="line"></span><br><span class="line">WARNING: Erase the above disk(s) and <span class="built_in">continue</span>? (y/n) [n] y</span><br><span class="line"></span><br><span class="line">$ poweroff <span class="comment"># 关机</span></span><br></pre></td></tr></table></figure>
+
+<p>安装完成，在存储设置中将安装镜像移除。重新启动 docker 虚拟机。使用 root 用户登录。现将我们电脑的 ssh 公钥添加到 <code>/root/.ssh/authorized_keys</code> 文件中。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mkdir .ssh</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> .ssh</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget -O authorized_keys https://github.com/eirture.keys</span></span><br></pre></td></tr></table></figure>
+
+<p>通过 ifconfg 查看 eth1 IP 地址，现在可以在电脑上通过 ssh 登录到虚拟机中了。</p>
+<p>登录后，可以开始安装 docker。开启社区仓库地址。取消 <code>/etc/apk/repositories</code> 文件第三行的注释</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> cat /etc/apk/repositories</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">/media/cdrom/apks</span></span><br><span class="line">http://mirrors.sjtug.sjtu.edu.cn/alpine/v3.15/main</span><br><span class="line">http://mirrors.sjtug.sjtu.edu.cn/alpine/v3.15/community  # 删除这一行开头的 #</span><br><span class="line"><span class="meta">#</span><span class="bash">http://mirrors.sjtug.sjtu.edu.cn/alpine/edge/main</span></span><br><span class="line"><span class="meta">#</span><span class="bash">http://mirrors.sjtug.sjtu.edu.cn/alpine/edge/community</span></span><br><span class="line"><span class="meta">#</span><span class="bash">http://mirrors.sjtug.sjtu.edu.cn/alpine/edge/testing</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> apk update</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> apk add docker</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> rc-update add docker default  <span class="comment"># 开启自动启动 docker 服务</span></span></span><br></pre></td></tr></table></figure>
+
+<p>在 mac 上可以配置 DOCKER_HOST，可以直接访问虚拟机中的 docker 服务。（需要先在 mac 上安装 docker 命令工具 <code>brew install docker</code>）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">export</span> DOCKER_HOST=ssh://root@192.168.56.103</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker version</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="文件共享"><a href="#文件共享" class="headerlink" title="文件共享"></a>文件共享</h2><p>可以直接使用 VirtualBox 提供的文件共享功能。需要先在虚拟机中安装 VirtualBox 扩展驱动。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> apk add virtualbox-guest-additions</span></span><br></pre></td></tr></table></figure>
+
+<p>在虚拟机配置的共享目录设置中把 /Users 目录配置为永久共享路径。挂载点设置为 Users。将挂在信息配置到虚拟机的 <code>/etc/fstab</code> 文件中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 添加如下行</span><br><span class="line">Users &#x2F;Users vboxsf defaults 0 0</span><br></pre></td></tr></table></figure>
+
+<p>通过 mount 命令挂在并查看是否挂在成功。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mkdir /Users</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mount -a</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls -l /Users</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="连通网络"><a href="#连通网络" class="headerlink" title="连通网络"></a>连通网络</h2><p>我们可以通过虚拟机转发所有发往容器网络的包。安装好 docker 以后，默认 ipv4 的转发功能已经开启。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> cat /proc/sys/net/ipv4/ip_forward</span></span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+
+<p>在虚拟机中配置 iptables 允许 eth1 发往 172.16.0.0/12 网段的包。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> iptables -A FORWARD -i eth1 -d 172.16.0.0/12 -j ACCEPT</span></span><br></pre></td></tr></table></figure>
+
+<p>可以把这个规则配置添加到 dockerd 启动的配置文件中。dockerd 启动完成后，自动配置该规则。在 /etc/init.d/docker 文件中，增加以下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">start_post() &#123;</span><br><span class="line">	iptables -A FORWARD -i eth1 -d 172.16.0.0/12 -j ACCEPT</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>另外还需要在 mac 主机上添加一个路由规则，将发往 172.16/12 网段的包，发往 192.168.56.103 （虚拟机 eth1 IP）网关。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo route add -net 172.16&#x2F;12 192.168.56.103</span><br></pre></td></tr></table></figure>
+
+<p>启动一个 nginx 服务验证，可以在 mac 上直接通过容器 ip 访问 nginx 服务了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ docker run --rm --name nginx -i -d nginx</span><br><span class="line">$ docker inspect nginx -f &#39;&#123;&#123; .NetworkSettings.IPAddress &#125;&#125;&#39;</span><br><span class="line">172.17.0.2</span><br><span class="line"></span><br><span class="line">$ curl 172.17.0.2</span><br></pre></td></tr></table></figure>
+
+<p>最后我自定义了两个命令别名，快速启动和关闭 docker 虚拟机。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">alias dds='VBoxManage list runningvms' # 查看正常运行的虚拟机</span><br><span class="line">alias ddsr='VBoxManage startvm --type headless docker' # 启动 docker 服务 (dockerd start)</span><br><span class="line">alias ddso='ssh root@&lt;your-docker-vm-ip&gt; poweroff' # 停止 docker 服务 (dockerd stop)</span><br></pre></td></tr></table></figure>
+
+<h2 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h2><p>到此，我们有了一个简单的替代 Docker Desktop 方案。当然直接使用 Podman 或 colima 也可以满足大多数使用场景。不过在网络上笔者往前探索了一步。而无论 Podman, colima 还是笔者的方案。都有存在一个问题。就是共享的文件，无法修改权限和 owner。而在某些场景下，通过 bind 目录的方式共享的目录，可以在容器内部，因为 owner 或权限无法修改也无法读写。Docker Desktop 使用自己的 gRPC fuse 方案避免了这个问题。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://wiki.alpinelinux.org/wiki/Install_Alpine_on_VirtualBox#Install_drivers_for_Virtual_Box" target="_blank" rel="noopener">Install Alpine on VirtualBox - Alpine Linux</a></li>
+<li><a href="https://unix.stackexchange.com/a/222065/379653" target="_blank" rel="noopener">networking - How can I use Linux as a Gateway? - Unix &amp; Linux Stack Exchange</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/163103180" target="_blank" rel="noopener">mac os (freebsd)的路由规则学习 - 知乎</a></li>
+<li><a href="https://www.docker.com/blog/file-sharing-with-docker-desktop/" target="_blank" rel="noopener">File Sharing with Docker Desktop - Docker Blog</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/docker/" rel="tag"># docker</a>
+              <a href="/tags/macOS/" rel="tag"># macOS</a>
+              <a href="/tags/container/" rel="tag"># container</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/05/skiing-on-new-year's-day-in-2020/" rel="prev" title="2022 元旦滑雪">
+      <i class="fa fa-chevron-left"></i> 2022 元旦滑雪
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#虚拟机安装"><span class="nav-number">1.</span> <span class="nav-text">虚拟机安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件共享"><span class="nav-number">2.</span> <span class="nav-text">文件共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#连通网络"><span class="nav-number">3.</span> <span class="nav-text">连通网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结尾"><span class="nav-number">4.</span> <span class="nav-text">结尾</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jie Liu</p>
+  <div class="site-description" itemprop="description">记录点滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/eirture" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;eirture" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jie Liu</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'nmTRDqWRXATznfiuunasDJ5S-gzGzoHsz',
+      appKey     : 'SIu5Sc1qlfAOhi6uociYW8xk',
+      placeholder: "Just go go",
+      avatar     : 'monsterid',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
