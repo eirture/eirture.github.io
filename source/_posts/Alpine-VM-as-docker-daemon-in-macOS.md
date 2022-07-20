@@ -174,12 +174,12 @@ $ docker inspect nginx -f '{{ .NetworkSettings.IPAddress }}'
 $ curl 172.17.0.2
 ```
 
-最后我自定义了两个命令别名，快速启动和关闭 docker 虚拟机。
+最后我自定义了两个命令别名，快速启动和关闭 docker 虚拟机。在启动的时候增加路由表信息，关闭时候删除路由表信息。
 
 ```shell
 alias dds='VBoxManage list runningvms' # 查看正常运行的虚拟机
-alias ddsr='VBoxManage startvm --type headless docker' # 启动 docker 服务 (dockerd start)
-alias ddso='ssh root@<your-docker-vm-ip> poweroff' # 停止 docker 服务 (dockerd stop)
+alias ddsr='VBoxManage startvm --type headless docker && echo "Waiting..." && sudo route add -net 172.16.0.0 -netmask 255.248.0.0 192.168.56.103' # 启动 docker 服务 (dockerd start)
+alias ddso='ssh root@<your-docker-vm-ip> poweroff && && sudo route delete 172.16/13' # 停止 docker 服务 (dockerd stop)
 ```
 
 ## 结尾
