@@ -184,7 +184,7 @@ alias ddso='ssh root@<your-docker-vm-ip> poweroff && && sudo route delete 172.16
 
 ## 结尾
 
-到此，我们有了一个简单的替代 Docker Desktop 方案。当然直接使用 Podman 或 colima 也可以满足大多数使用场景。不过在网络上笔者往前探索了一步。而无论 Podman, colima 还是笔者的方案。都有存在一个问题。就是共享的文件，无法修改权限和 owner。而在某些场景下，通过 bind 目录的方式共享的目录，可以在容器内部，因为 owner 或权限无法修改也无法读写。Docker Desktop 使用自己的 gRPC fuse 方案避免了这个问题。
+到此，我们有了一个简单的替代 Docker Desktop 方案。当然直接使用 Podman 或 colima 也可以满足大多数使用场景。不过在网络上笔者往前探索了一步。而无论 Podman, colima 还是笔者的方案。都有存在一个问题。就是共享的文件，无法修改权限和 owner。而在某些场景下，通过 bind 目录的方式共享的目录，可能在容器内部，因为 owner 或权限无法修改也无法读写。Docker Desktop 使用自己的 gRPC fuse 方案避免了这个问题。
 
 ## 参考
 
