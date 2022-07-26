@@ -7,7 +7,7 @@ tags: [docker, macOS, container]
 
 根据目前（2022/02）最新的 [Docker Subscription Service Agreement](https://www.docker.com/legal/docker-subscription-service-agreement)，Docker Desktop 只对小于 250 员工且年收入不到 1 千万美元的公司，个人用户，教育用途和非商业开源项目，提供免费使用。
 
-对于 Mac 和 Windows 用户来说，如果不能使用 Docker Desktop，还是有非常多的可替代方案。比如 Podman, colima 甚至 docker-machine。而我个人在比较早期的时候，一直是通过 docker machine 的方式在 Mac 上使用 docker。后来发现 docker machine 不在维护，镜像不再更新。转向使用 Docker Desktop。现在公司因为不在 Docker Desktop 免费使用用户范围内。这里简单记录一下，自己在 Mac 上使用 docker 的方案。
+对于 Mac 和 Windows 用户来说，如果不能使用 Docker Desktop，还是有非常多的可替代方案。比如 Podman, colima 甚至 docker-machine。而我个人在比较早期的时候，一直是通过 docker machine 的方式在 Mac 上使用 docker。后来发现 docker machine 不再维护，镜像不再更新。转向使用 Docker Desktop。现在公司因为不在 Docker Desktop 免费使用用户范围内。这里简单记录一下，自己在 Mac 上使用 docker 的方案。
 
 简单分为三大块
 
@@ -19,7 +19,7 @@ tags: [docker, macOS, container]
 
 ## 虚拟机安装
 
-在非 linux 系统上运行容器服务，本质上都是通过运行一个 linux 虚拟机来实现的。免费常用的虚拟机软件 [VirtualBox](https://www.virtualbox.org/) 可以很好的胜任这个工作。既然我们的目的知识未来通过虚拟机来运行 dockerd 服务。这里选择一个小巧精简的系统 [Alpine Linux](https://alpinelinux.org/downloads/)，它的虚拟系统优化版本只有 54.5 MB。
+在非 linux 系统上运行容器服务，本质上都是通过运行一个 linux 虚拟机来实现的。免费常用的虚拟机软件 [VirtualBox](https://www.virtualbox.org/) 可以很好的胜任这个工作。既然我们的目的是通过虚拟机来运行 dockerd 服务。这里选择一个小巧精简的系统 [Alpine Linux](https://alpinelinux.org/downloads/)，它的虚拟系统优化版本只有 54.5 MB。
 
 
 VirtualBox 可以在官网下载安装包。除了安装 VirtualBox 本身，还需要安装它的扩展包，在后面的文件共享时依赖于此。同样可以从官网下载到。
@@ -33,7 +33,7 @@ $ brew install virtualbox-extension-pack
 
 安装好 VirtualBox 后，新建虚拟机，选择创建一个命名为 "docker" 的 64-bit Linux 系统，1 GB 内存。20 GB 动态分配磁盘。创建好以后。在“Tools” - “Network” 中创建一张虚拟网卡。
 
-在 docker 虚拟机的网络设置中，启用 “Adapter 2”，网络类型选择 “Host-only Adapter”，下面会自动选上我们前面创建好的虚拟网卡。
+在 docker 虚拟机的网络设置中，启用 “Adapter 2”，网络类型选择 “Host-only Adapter”，下面会自动选上我们前面创建好的虚拟网卡。这里稍微解释一下，默认 “Adapter 1” 是 NAT 网络，用来访问外网。这个 IP 在我们的电脑上访问不通。所以新增一个主机网络，用于在电脑上访问这台虚拟机。
 
 再在存储中将我们下好的 Alpine 镜像分配到空的片盘中。就可以开始启动我们的虚拟机了。
 
@@ -120,7 +120,7 @@ $ docker version
 $ apk add virtualbox-guest-additions
 ```
 
-在虚拟机配置的共享目录设置中把 /Users 目录配置为永久共享路径。挂载点设置为 Users。将挂在信息配置到虚拟机的 `/etc/fstab` 文件中。
+在虚拟机配置的共享目录设置中把 /Users 目录配置为永久共享路径。挂载点设置为 Users。将挂载信息配置到虚拟机的 `/etc/fstab` 文件中。
 
 ```fstab
 # 添加如下行
