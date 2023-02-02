@@ -1,4 +1,8 @@
 
+.PHONY: table
+table:
+	./scripts/updatetable.py
+
 .PHONY: prepare
 prepare:
 	- npm install 
@@ -20,4 +24,3 @@ deploy: prepare generate
 service: 
 	- cp -r custom/* themes/
 	./node_modules/hexo/bin/hexo g && ./node_modules/hexo/bin/hexo s
-
