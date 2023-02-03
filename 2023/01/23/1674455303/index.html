@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"blog.eirture.cn","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="背景小米空调伴侣可以控制家里的空调。通过米家 APP 开关和设置，也可以在上面设置定时。在南方湿冷的冬天，早上起床前自动把房间的空调开起来，床再也不会赖着我了。有很长的一段时间，我是这么用的。但是有几次出门，完全不记得空调会自动开。于是回家后发现空调一直开着…。于是就有了这篇博客的内容。能不能只有我在家的时候空调才自动开？ 思路和实现研究了一下，米家 APP 原生提供的功能似乎无法满足这个需求。不">
+  <meta name="description" content="背景小米空调伴侣可以控制家里的空调。通过米家 APP 开关和设置，也可以在上面设置定时。在南方湿冷的冬天，早上起床前自动把房间的空调开起来，床再也不会赖着我了。有很长的一段时间，我是这么用的。但是有几次出门，完全不记得空调会自动开。于是回家后发现空调一直开着…。于是就有了这篇博客的内容。能不能只有我在家的时候空调才自动开？">
 <meta property="og:type" content="article">
 <meta property="og:title" content="能不能只有我在家的时候空调才自动开">
 <meta property="og:url" content="https://blog.eirture.cn/2023/01/23/1674455303/index.html">
 <meta property="og:site_name" content="月光">
-<meta property="og:description" content="背景小米空调伴侣可以控制家里的空调。通过米家 APP 开关和设置，也可以在上面设置定时。在南方湿冷的冬天，早上起床前自动把房间的空调开起来，床再也不会赖着我了。有很长的一段时间，我是这么用的。但是有几次出门，完全不记得空调会自动开。于是回家后发现空调一直开着…。于是就有了这篇博客的内容。能不能只有我在家的时候空调才自动开？ 思路和实现研究了一下，米家 APP 原生提供的功能似乎无法满足这个需求。不">
+<meta property="og:description" content="背景小米空调伴侣可以控制家里的空调。通过米家 APP 开关和设置，也可以在上面设置定时。在南方湿冷的冬天，早上起床前自动把房间的空调开起来，床再也不会赖着我了。有很长的一段时间，我是这么用的。但是有几次出门，完全不记得空调会自动开。于是回家后发现空调一直开着…。于是就有了这篇博客的内容。能不能只有我在家的时候空调才自动开？">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2023-01-23T14:28:22.000Z">
-<meta property="article:modified_time" content="2023-02-02T08:32:33.399Z">
+<meta property="article:modified_time" content="2023-02-03T09:04:01.766Z">
 <meta property="article:author" content="Jie Liu">
 <meta property="article:tag" content="iot">
 <meta name="twitter:card" content="summary">
@@ -214,6 +214,8 @@
 
       
         <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>小米空调伴侣可以控制家里的空调。通过米家 APP 开关和设置，也可以在上面设置定时。在南方湿冷的冬天，早上起床前自动把房间的空调开起来，床再也不会赖着我了。有很长的一段时间，我是这么用的。但是有几次出门，完全不记得空调会自动开。于是回家后发现空调一直开着…。于是就有了这篇博客的内容。<strong>能不能只有我在家的时候空调才自动开？</strong></p>
+<a id="more"></a>
+
 <h2 id="思路和实现"><a href="#思路和实现" class="headerlink" title="思路和实现"></a>思路和实现</h2><p>研究了一下，米家 APP 原生提供的功能似乎无法满足这个需求。不通过米家 APP 能不能做到呢？把这个拆分为两个问题：</p>
 <ol>
 <li>怎么控制空调？</li>
