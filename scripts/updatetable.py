@@ -7,11 +7,11 @@ import sys
 TABLE_ANCHOR = '## Blogs\n'
 
 TABLE_HEADER = '''
-| Title | Date | Updated |
-| ----- | ---- | ------- |
+| Date | Title |
+| ---- | ----- |
 '''
 
-TABLE_ROW_TEMPLATE = '| [{title}]({path}) | {date} | {updated} |\n'
+TABLE_ROW_TEMPLATE = '| {date:%Y-%m-%d} | [{title}]({path}) |\n'
 
 READ_MAX_LINES = 8
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -60,7 +60,11 @@ def parse_meta(path):
                 parts = line.decode('utf-8').split(': ', 1)
                 if len(parts) != 2:
                     continue
-                meta[parts[0]] = parts[1]
+                key = parts[0]
+                v = {
+                    'date': lambda v: datetime.datetime.strptime(v, DATE_FORMAT)
+                }.get(key, lambda v: v)(parts[1])
+                meta[key] = v
     return meta
 
 
@@ -75,8 +79,8 @@ def scan_metas():
             continue
         fullpath = os.path.join(POSTS_DIR, post)
         meta = parse_meta(fullpath)
-        if 'updated' not in meta:
-            meta['updated'] = get_updated(fullpath)
+        # if 'updated' not in meta:
+        #     meta['updated'] = get_updated(fullpath)
         meta['path'] = fullpath
         post_metas.append(meta)
 
@@ -97,6 +101,7 @@ def update_readme(metas):
                 f.writelines(lines[:i+1])
                 f.write(TABLE_HEADER)
                 f.writelines(table_rows)
+        f.truncate()
 
 
 def main():
